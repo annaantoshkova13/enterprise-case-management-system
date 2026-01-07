@@ -1,9 +1,8 @@
 package org.example.enterprisecasemanagementsystem.user;
 
 import jakarta.persistence.*;
+import org.example.enterprisecasemanagementsystem.EmailValue;
 import org.example.enterprisecasemanagementsystem.Role;
-import org.example.enterprisecasemanagementsystem.student.Student;
-import org.example.enterprisecasemanagementsystem.teacher.Teacher;
 
 import java.time.LocalDateTime;
 
@@ -14,8 +13,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String email;
+    @Embedded
+    private EmailValue email;
 
     @Column(nullable = false)
     private String passwordHash;
@@ -31,64 +30,37 @@ public class User {
         createdAt = LocalDateTime.now();
     }
 
+    public User(EmailValue email, String passwordHash, Role role) {
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.role = role;
+    }
+
     public User(String email, String passwordHash, Role role) {
-        setEmail(email);
-        setPasswordHash(passwordHash);
-        setRole(role);
+        this(new EmailValue(email), passwordHash, role);
     }
 
     public User() {
     }
 
-    public String getEmail() {
-        return email;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setEmail(String email) {
-        if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("Email cannot be empty");
-        }
-        if (!email.contains("@")) {
-            throw new IllegalArgumentException("Invalid email format");
-        }
-        this.email = email;
-    }
+    public EmailValue getEmail() { return email; }
+    public void setEmail(EmailValue email) { this.email = email; }
 
-    public String getPasswordHash() {
-        return passwordHash;
-    }
+    public void setEmail(String email) { this.email = new EmailValue(email); }
 
-    public void setPasswordHash(String passwordHash) {
-        if (passwordHash == null || passwordHash.isBlank()) {
-            throw new IllegalArgumentException("Password cannot be empty");
-        }
-        this.passwordHash = passwordHash;
-    }
+    public String getPasswordHash() { return passwordHash; }
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 
-    public Role getRole() {
-        return role;
-    }
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
 
-    public void setRole(Role role) {
-        if (role == null) {
-            throw new IllegalArgumentException("Role cannot be null");
-        }
-        this.role = role;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
+    public String getEmailString() {
+        return email != null ? email.toString() : null;
     }
 }
