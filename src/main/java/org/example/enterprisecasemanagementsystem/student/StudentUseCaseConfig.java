@@ -1,13 +1,16 @@
 package org.example.enterprisecasemanagementsystem.student;
 
+import org.example.enterprisecasemanagementsystem.user.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class StudentUseCaseConfig {
+
     @Bean
-    public CreateStudentUseCase createStudentUseCase(StudentRepository repository){
-        return new CreateStudentUseCase(repository);
+    public CreateStudentUseCase createStudentUseCase(StudentRepository studentRepository,
+                                                     UserRepository userRepository) {
+        return new CreateStudentUseCase(studentRepository, userRepository);
     }
 
     @Bean

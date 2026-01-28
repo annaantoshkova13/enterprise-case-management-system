@@ -8,4 +8,5 @@ public interface TeacherRepository {
     Optional<Teacher> findById(Long id);
     List<Teacher> findAll();
     void deleteById(Long id);
+    boolean existsById(Long id);
 }

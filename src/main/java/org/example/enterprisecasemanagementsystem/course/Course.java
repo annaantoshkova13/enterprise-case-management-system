@@ -1,9 +1,13 @@
 package org.example.enterprisecasemanagementsystem.course;
 
 import jakarta.persistence.*;
+import org.example.enterprisecasemanagementsystem.exception.BusinessException;
+import org.example.enterprisecasemanagementsystem.student.Student;
 import org.example.enterprisecasemanagementsystem.teacher.Teacher;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Course {
@@ -20,17 +24,33 @@ public class Course {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
+    private Integer maxStudents = 30;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "teacher_id")
     private Teacher teacher;
+
+    @ManyToMany
+    @JoinTable(
+            name = "course_student",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id")
+    )
+    private Set<Student> enrolledStudents = new HashSet<>();
 
     public Course() {
     }
 
     public Course(String title, String description, Teacher teacher) {
+        this(title, description, teacher, 30);
+    }
+
+    public Course(String title, String description, Teacher teacher, Integer maxStudents) {
         this.title = title;
         this.description = description;
         this.teacher = teacher;
+        this.maxStudents = maxStudents != null ? maxStudents : 30;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -43,6 +63,45 @@ public class Course {
         }
         this.title = title;
         this.description = description;
+    }
+
+    public void enrollStudent(Student student) {
+        if (enrolledStudents.size() >= maxStudents) {
+            throw new BusinessException("Course is full. Maximum students: " + maxStudents);
+        }
+        if (enrolledStudents.contains(student)) {
+            throw new BusinessException("Student is already enrolled in this course");
+        }
+        enrolledStudents.add(student);
+    }
+
+    public void unenrollStudent(Student student) {
+        enrolledStudents.remove(student);
+    }
+
+    public boolean isStudentEnrolled(Long studentId) {
+        return enrolledStudents.stream()
+                .anyMatch(student -> student.getId().equals(studentId));
+    }
+
+    public Integer getMaxStudents() {
+        return maxStudents;
+    }
+
+    public void setMaxStudents(Integer maxStudents) {
+        this.maxStudents = maxStudents;
+    }
+
+    public Set<Student> getEnrolledStudents() {
+        return enrolledStudents;
+    }
+
+    public void setEnrolledStudents(Set<Student> enrolledStudents) {
+        this.enrolledStudents = enrolledStudents;
+    }
+
+    public void setTeacher(Teacher teacher) {
+        this.teacher = teacher;
     }
 
     public Long getId() {
@@ -63,5 +122,13 @@ public class Course {
 
     public Teacher getTeacher() {
         return teacher;
+    }
+
+    public int getCurrentEnrollment() {
+        return enrolledStudents.size();
+    }
+
+    public boolean hasAvailableSlots() {
+        return enrolledStudents.size() < maxStudents;
     }
 }

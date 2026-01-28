@@ -1,100 +1,70 @@
 package org.example.enterprisecasemanagementsystem.student;
 
-import org.example.enterprisecasemanagementsystem.user.User;
-import org.example.enterprisecasemanagementsystem.user.UserRepository;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.example.enterprisecasemanagementsystem.ApiResponse;
+import org.example.enterprisecasemanagementsystem.CreateStudentRequestDTO;
+import org.example.enterprisecasemanagementsystem.StudentResponseDTO;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/students")
+@RequestMapping("/api/v1/students")
+@RequiredArgsConstructor
 public class StudentController {
+
     private final CreateStudentUseCase createStudentUseCase;
     private final UpdateStudentGroupUseCase updateStudentGroupUseCase;
     private final GetStudentByIdUseCase getStudentByIdUseCase;
     private final ListStudentsUseCase listStudentsUseCase;
     private final DeleteStudentUseCase deleteStudentUseCase;
-    private final UserRepository userRepository;
-
-    public StudentController(CreateStudentUseCase createStudentUseCase,
-                             UpdateStudentGroupUseCase updateStudentGroupUseCase,
-                             GetStudentByIdUseCase getStudentByIdUseCase,
-                             ListStudentsUseCase listStudentsUseCase,
-                             DeleteStudentUseCase deleteStudentUseCase,
-                             UserRepository userRepository
-                             ) {
-        this.createStudentUseCase = createStudentUseCase;
-        this.updateStudentGroupUseCase = updateStudentGroupUseCase;
-        this.getStudentByIdUseCase = getStudentByIdUseCase;
-        this.listStudentsUseCase = listStudentsUseCase;
-        this.deleteStudentUseCase = deleteStudentUseCase;
-        this.userRepository = userRepository;
-    }
 
     @PostMapping
-    public Student create(@RequestBody CreateStudentRequest request) {
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + request.getUserId()));
-
-        return createStudentUseCase.execute(user, request.getGroupName());
+    public ResponseEntity<ApiResponse<StudentResponseDTO>> createStudent(
+            @Valid @RequestBody CreateStudentRequestDTO requestDTO) {
+        Student student = createStudentUseCase.execute(
+                requestDTO.getFirstName(),
+                requestDTO.getLastName(),
+                requestDTO.getGroupName(),
+                requestDTO.getUserId()  // Теперь передается Long, а не User
+        );
+        StudentResponseDTO responseDTO = StudentResponseDTO.fromEntity(student);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(responseDTO, "Student created successfully"));
     }
 
     @PutMapping("/{id}/group")
-    public Student updateGroup(@PathVariable Long id, @RequestBody String newGroup) {
-        return updateStudentGroupUseCase.execute(id, newGroup);
+    public ResponseEntity<ApiResponse<StudentResponseDTO>> updateGroup(
+            @PathVariable Long id,
+            @RequestParam String groupName) {
+        Student student = updateStudentGroupUseCase.execute(id, groupName);
+        StudentResponseDTO responseDTO = StudentResponseDTO.fromEntity(student);
+        return ResponseEntity.ok(ApiResponse.success(responseDTO, "Group updated successfully"));
     }
 
     @GetMapping("/{id}")
-    public Student getById(@PathVariable Long id) {
-        return getStudentByIdUseCase.execute(id);
+    public ResponseEntity<ApiResponse<StudentResponseDTO>> getStudent(@PathVariable Long id) {
+        Student student = getStudentByIdUseCase.execute(id);
+        StudentResponseDTO responseDTO = StudentResponseDTO.fromEntity(student);
+        return ResponseEntity.ok(ApiResponse.success(responseDTO));
     }
 
     @GetMapping
-    public List<Student> list() {
-        return listStudentsUseCase.execute();
+    public ResponseEntity<ApiResponse<List<StudentResponseDTO>>> getAllStudents() {
+        List<Student> students = listStudentsUseCase.execute();
+        List<StudentResponseDTO> responseDTOs = students.stream()
+                .map(StudentResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(ApiResponse.success(responseDTOs));
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteStudent(@PathVariable Long id) {
         deleteStudentUseCase.execute(id);
-    }
-
-    static class CreateStudentRequest {
-        private String firstName;
-        private String lastName;
-        private String groupName;
-        private Long userId;
-
-        public String getFirstName() {
-            return firstName;
-        }
-
-        public void setFirstName(String firstName) {
-            this.firstName = firstName;
-        }
-
-        public String getLastName() {
-            return lastName;
-        }
-
-        public void setLastName(String lastName) {
-            this.lastName = lastName;
-        }
-
-        public String getGroupName() {
-            return groupName;
-        }
-
-        public void setGroupName(String groupName) {
-            this.groupName = groupName;
-        }
-
-        public Long getUserId() {
-            return userId;
-        }
-
-        public void setUserId(Long userId) {
-            this.userId = userId;
-        }
+        return ResponseEntity.ok(ApiResponse.success(null, "Student deleted successfully"));
     }
 }

@@ -1,85 +1,72 @@
 package org.example.enterprisecasemanagementsystem.teacher;
-import org.example.enterprisecasemanagementsystem.user.User;
-import org.example.enterprisecasemanagementsystem.user.UserRepository;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.example.enterprisecasemanagementsystem.ApiResponse;
+import org.example.enterprisecasemanagementsystem.CreateTeacherRequestDTO;
+import org.example.enterprisecasemanagementsystem.TeacherResponseDTO;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
-@RequestMapping("/teachers")
+@RequestMapping("/api/v1/teachers")
+@RequiredArgsConstructor
 public class TeacherController {
+
     private final CreateTeacherUseCase createTeacherUseCase;
     private final UpdateTeacherDepartmentUseCase updateTeacherDepartmentUseCase;
     private final GetTeacherByIdUseCase getTeacherByIdUseCase;
     private final ListTeachersUseCase listTeachersUseCase;
     private final DeleteTeacherUseCase deleteTeacherUseCase;
-    private final UserRepository userRepository;
-
-    public TeacherController(CreateTeacherUseCase createTeacherUseCase,
-                             UpdateTeacherDepartmentUseCase updateTeacherDepartmentUseCase,
-                             GetTeacherByIdUseCase getTeacherByIdUseCase,
-                             ListTeachersUseCase listTeachersUseCase,
-                             DeleteTeacherUseCase deleteTeacherUseCase,
-                             UserRepository userRepository) {
-        this.createTeacherUseCase = createTeacherUseCase;
-        this.updateTeacherDepartmentUseCase = updateTeacherDepartmentUseCase;
-        this.getTeacherByIdUseCase = getTeacherByIdUseCase;
-        this.listTeachersUseCase = listTeachersUseCase;
-        this.deleteTeacherUseCase = deleteTeacherUseCase;
-        this.userRepository = userRepository;
-    }
 
     @PostMapping
-    public Teacher createTeacher(@RequestBody CreateTeacherRequest request) {
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        return createTeacherUseCase.execute(
-                request.getFirstName(),
-                request.getLastName(),
-                request.getDepartment(),
-                user
+    public ResponseEntity<ApiResponse<TeacherResponseDTO>> createTeacher(
+            @Valid @RequestBody CreateTeacherRequestDTO requestDTO) {
+        Teacher teacher = createTeacherUseCase.execute(
+                requestDTO.getFirstName(),
+                requestDTO.getLastName(),
+                requestDTO.getDepartment(),
+                requestDTO.getUserId()  // Теперь передается Long, а не User
         );
+        TeacherResponseDTO responseDTO = TeacherResponseDTO.fromEntity(teacher);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(responseDTO, "Teacher created successfully"));
     }
 
     @PutMapping("/{id}/department")
-    public Teacher updateTeacherDepartment(@PathVariable Long id, @RequestParam String department) {
-        return updateTeacherDepartmentUseCase.execute(id, department);
+    public ResponseEntity<ApiResponse<TeacherResponseDTO>> updateDepartment(
+            @PathVariable Long id,
+            @RequestParam String department) {
+        Teacher teacher = updateTeacherDepartmentUseCase.execute(id, department);
+        TeacherResponseDTO responseDTO = TeacherResponseDTO.fromEntity(teacher);
+        return ResponseEntity.ok(ApiResponse.success(responseDTO, "Department updated successfully"));
     }
 
     @GetMapping("/{id}")
-    public Teacher getTeacher(@PathVariable Long id) {
-        return getTeacherByIdUseCase.execute(id);
+    public ResponseEntity<ApiResponse<TeacherResponseDTO>> getTeacher(@PathVariable Long id) {
+        Teacher teacher = getTeacherByIdUseCase.execute(id);
+        TeacherResponseDTO responseDTO = TeacherResponseDTO.fromEntity(teacher);
+        return ResponseEntity.ok(ApiResponse.success(responseDTO));
     }
 
     @GetMapping
-    public List<Teacher> listTeachers() {
-        return listTeachersUseCase.execute();
+    public ResponseEntity<ApiResponse<List<TeacherResponseDTO>>> getAllTeachers() {
+        List<Teacher> teachers = listTeachersUseCase.execute();
+        List<TeacherResponseDTO> responseDTOs = teachers.stream()
+                .map(TeacherResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(ApiResponse.success(responseDTOs));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTeacher(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteTeacher(@PathVariable Long id) {
         deleteTeacherUseCase.execute(id);
-    }
-
-    static class CreateTeacherRequest {
-        private String firstName;
-        private String lastName;
-        private String department;
-        private Long userId;
-
-        public String getFirstName() { return firstName; }
-        public void setFirstName(String firstName) { this.firstName = firstName; }
-
-        public String getLastName() { return lastName; }
-        public void setLastName(String lastName) { this.lastName = lastName; }
-
-        public String getDepartment() { return department; }
-        public void setDepartment(String department) { this.department = department; }
-
-        public Long getUserId() { return userId; }
-        public void setUserId(Long userId) { this.userId = userId; }
+        return ResponseEntity.ok(ApiResponse.success(null, "Teacher deleted successfully"));
     }
 }

@@ -1,13 +1,14 @@
 package org.example.enterprisecasemanagementsystem.course;
 
 import jakarta.transaction.Transactional;
+import org.example.enterprisecasemanagementsystem.exception.ResourceNotFoundException;
 import org.example.enterprisecasemanagementsystem.teacher.Teacher;
 import org.example.enterprisecasemanagementsystem.teacher.TeacherRepository;
 
 public class CreateCourseUseCase {
 
     private final CourseRepository courseRepository;
-    private final TeacherRepository teacherRepository; // Добавляем TeacherRepository
+    private final TeacherRepository teacherRepository;
 
     public CreateCourseUseCase(CourseRepository courseRepository, TeacherRepository teacherRepository) {
         this.courseRepository = courseRepository;
@@ -16,10 +17,15 @@ public class CreateCourseUseCase {
 
     @Transactional
     public Course execute(String title, String description, Long teacherId) {
-        Teacher teacher = teacherRepository.findById(teacherId)
-                .orElseThrow(() -> new RuntimeException("Teacher not found with id: " + teacherId));
+        return execute(title, description, teacherId, 30); // Default 30 students
+    }
 
-        Course course = new Course(title, description, teacher);
+    @Transactional
+    public Course execute(String title, String description, Long teacherId, Integer maxStudents) {
+        Teacher teacher = teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher", "id", teacherId));
+
+        Course course = new Course(title, description, teacher, maxStudents);
         return courseRepository.save(course);
     }
 }
