@@ -2,14 +2,8 @@ package org.example.enterprisecasemanagementsystem.course;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.enterprisecasemanagementsystem.ApiResponse;
-import org.example.enterprisecasemanagementsystem.CourseResponseDTO;
-import org.example.enterprisecasemanagementsystem.CreateCourseRequestDTO;
-import org.example.enterprisecasemanagementsystem.TeacherResponseDTO;
-import org.example.enterprisecasemanagementsystem.exception.ResourceNotFoundException;
+import org.example.enterprisecasemanagementsystem.*;
 import org.example.enterprisecasemanagementsystem.student.Student;
-import org.example.enterprisecasemanagementsystem.student.StudentRepository;
-import org.example.enterprisecasemanagementsystem.teacher.TeacherRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,9 +22,8 @@ public class CourseController {
     private final GetCourseUseCase getCourseUseCase;
     private final ListCourseUseCase listCourseUseCase;
     private final DeleteCourseUseCase deleteCourseUseCase;
-    private final CourseRepository courseRepository;
-    private final TeacherRepository teacherRepository;
-    private final StudentRepository studentRepository;
+    private final EnrollStudentUseCase enrollStudentUseCase;
+    private final UnenrollStudentUseCase unenrollStudentUseCase;
 
     @PostMapping
     public ResponseEntity<ApiResponse<CourseResponseDTO>> createCourse(
@@ -63,16 +56,8 @@ public class CourseController {
     public ResponseEntity<ApiResponse<CourseResponseDTO>> enrollStudent(
             @PathVariable Long courseId,
             @PathVariable Long studentId) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("Course", "id", courseId));
-
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Student", "id", studentId));
-
-        course.enrollStudent(student);
-        Course updatedCourse = courseRepository.save(course);
-
-        CourseResponseDTO responseDTO = convertToDTO(updatedCourse);
+        Course course = enrollStudentUseCase.execute(courseId, studentId);
+        CourseResponseDTO responseDTO = convertToDTO(course);
         return ResponseEntity.ok(ApiResponse.success(responseDTO, "Student enrolled successfully"));
     }
 
@@ -80,16 +65,8 @@ public class CourseController {
     public ResponseEntity<ApiResponse<CourseResponseDTO>> unenrollStudent(
             @PathVariable Long courseId,
             @PathVariable Long studentId) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("Course", "id", courseId));
-
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Student", "id", studentId));
-
-        course.unenrollStudent(student);
-        Course updatedCourse = courseRepository.save(course);
-
-        CourseResponseDTO responseDTO = convertToDTO(updatedCourse);
+        Course course = unenrollStudentUseCase.execute(courseId, studentId);
+        CourseResponseDTO responseDTO = convertToDTO(course);
         return ResponseEntity.ok(ApiResponse.success(responseDTO, "Student unenrolled successfully"));
     }
 

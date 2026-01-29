@@ -2,18 +2,23 @@ package org.example.enterprisecasemanagementsystem.user;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class UserUseCaseConfig {
 
     @Bean
-    public CreateUserUseCase createUserUseCase(UserRepository repository) {
-        return new CreateUserUseCase(repository);
+    public CreateUserUseCase createUserUseCase(
+            UserRepository repository,
+            PasswordEncoder passwordEncoder) {
+        return new CreateUserUseCase(repository, passwordEncoder);
     }
 
     @Bean
-    public UpdateUserProfileUseCase updateUserUseCase(UserRepository repository) {
-        return new UpdateUserProfileUseCase(repository);
+    public UpdateUserProfileUseCase updateUserUseCase(
+            UserRepository repository,
+            PasswordEncoder passwordEncoder) {
+        return new UpdateUserProfileUseCase(repository, passwordEncoder);
     }
 
     @Bean

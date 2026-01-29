@@ -1,5 +1,8 @@
 package org.example.enterprisecasemanagementsystem.course;
 
+import org.example.enterprisecasemanagementsystem.EnrollStudentUseCase;
+import org.example.enterprisecasemanagementsystem.UnenrollStudentUseCase;
+import org.example.enterprisecasemanagementsystem.student.StudentRepository;
 import org.example.enterprisecasemanagementsystem.teacher.TeacherRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,5 +33,19 @@ public class CourseUseCaseConfig {
     @Bean
     public DeleteCourseUseCase deleteCourseUseCase(CourseRepository repository){
         return new DeleteCourseUseCase(repository);
+    }
+
+    @Bean
+    public EnrollStudentUseCase enrollStudentUseCase(
+            CourseRepository courseRepository,
+            StudentRepository studentRepository) {
+        return new EnrollStudentUseCase(courseRepository, studentRepository);
+    }
+
+    @Bean
+    public UnenrollStudentUseCase unenrollStudentUseCase(
+            CourseRepository courseRepository,
+            StudentRepository studentRepository) {
+        return new UnenrollStudentUseCase(courseRepository, studentRepository);
     }
 }

@@ -38,7 +38,11 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponseDTO>> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequestDTO requestDTO) {
-        User user = updateUserProfileUseCase.execute(id, requestDTO.getEmail());
+        User user = updateUserProfileUseCase.execute(
+                id,
+                requestDTO.getEmail(),
+                requestDTO.getPassword()
+        );
         UserResponseDTO responseDTO = UserResponseDTO.fromEntity(user);
         return ResponseEntity.ok(ApiResponse.success(responseDTO, "User updated successfully"));
     }
