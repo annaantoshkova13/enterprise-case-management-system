@@ -37,14 +37,14 @@ public class StudentController {
                 .body(ApiResponse.success(responseDTO, "Student created successfully"));
     }
 
-    @PutMapping("/{id}/group")
-    public ResponseEntity<ApiResponse<StudentResponseDTO>> updateGroup(
-            @PathVariable Long id,
-            @RequestParam String groupName) {
-        Student student = updateStudentGroupUseCase.execute(id, groupName);
-        StudentResponseDTO responseDTO = StudentResponseDTO.fromEntity(student);
-        return ResponseEntity.ok(ApiResponse.success(responseDTO, "Group updated successfully"));
-    }
+//    @PutMapping("/{id}/group")
+//    public ResponseEntity<ApiResponse<StudentResponseDTO>> updateGroup(
+//            @PathVariable Long id,
+//            @RequestParam String groupName) {
+//        Student student = updateStudentGroupUseCase.execute(id, groupName);
+//        StudentResponseDTO responseDTO = StudentResponseDTO.fromEntity(student);
+//        return ResponseEntity.ok(ApiResponse.success(responseDTO, "Group updated successfully"));
+//    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<StudentResponseDTO>> getStudent(@PathVariable Long id) {

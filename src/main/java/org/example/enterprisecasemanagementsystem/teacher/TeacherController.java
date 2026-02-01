@@ -39,14 +39,14 @@ public class TeacherController {
                 .body(ApiResponse.success(responseDTO, "Teacher created successfully"));
     }
 
-    @PutMapping("/{id}/department")
-    public ResponseEntity<ApiResponse<TeacherResponseDTO>> updateDepartment(
-            @PathVariable Long id,
-            @RequestParam String department) {
-        Teacher teacher = updateTeacherDepartmentUseCase.execute(id, department);
-        TeacherResponseDTO responseDTO = TeacherResponseDTO.fromEntity(teacher);
-        return ResponseEntity.ok(ApiResponse.success(responseDTO, "Department updated successfully"));
-    }
+//    @PutMapping("/{id}/department")
+//    public ResponseEntity<ApiResponse<TeacherResponseDTO>> updateDepartment(
+//            @PathVariable Long id,
+//            @RequestParam String department) {
+//        Teacher teacher = updateTeacherDepartmentUseCase.execute(id, department);
+//        TeacherResponseDTO responseDTO = TeacherResponseDTO.fromEntity(teacher);
+//        return ResponseEntity.ok(ApiResponse.success(responseDTO, "Department updated successfully"));
+//    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<TeacherResponseDTO>> getTeacher(@PathVariable Long id) {

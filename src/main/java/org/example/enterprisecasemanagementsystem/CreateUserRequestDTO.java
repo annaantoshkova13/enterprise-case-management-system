@@ -1,11 +1,9 @@
 package org.example.enterprisecasemanagementsystem;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public class CreateUserRequestDTO {
+
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;
@@ -14,8 +12,10 @@ public class CreateUserRequestDTO {
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
-    @NotNull(message = "Role is required")
-    private Role role;
+    @NotBlank(message = "Role is required")
+    @Pattern(regexp = "ADMIN|STUDENT|TEACHER",
+            message = "Role must be ADMIN, STUDENT or TEACHER")
+    private String role;  // String, не Role!
 
     private String firstName;
     private String lastName;
@@ -23,13 +23,13 @@ public class CreateUserRequestDTO {
     public CreateUserRequestDTO() {
     }
 
-    public CreateUserRequestDTO(String email, String password, Role role) {
+    public CreateUserRequestDTO(String email, String password, String role) {
         this.email = email;
         this.password = password;
         this.role = role;
     }
 
-    public CreateUserRequestDTO(String email, String password, Role role, String firstName, String lastName) {
+    public CreateUserRequestDTO(String email, String password, String role, String firstName, String lastName) {
         this.email = email;
         this.password = password;
         this.role = role;
@@ -45,7 +45,7 @@ public class CreateUserRequestDTO {
         return password;
     }
 
-    public Role getRole() {
+    public String getRole() {
         return role;
     }
 
@@ -65,7 +65,7 @@ public class CreateUserRequestDTO {
         this.password = password;
     }
 
-    public void setRole(Role role) {
+    public void setRole(String role) {
         this.role = role;
     }
 
@@ -75,5 +75,12 @@ public class CreateUserRequestDTO {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public Role getRoleAsEnum() {
+        if (role == null || role.isBlank()) {
+            throw new IllegalArgumentException("Role is null or empty");
+        }
+        return Role.valueOf(role.toUpperCase());
     }
 }

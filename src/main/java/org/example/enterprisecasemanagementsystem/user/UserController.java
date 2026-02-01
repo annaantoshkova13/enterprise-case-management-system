@@ -3,10 +3,12 @@ package org.example.enterprisecasemanagementsystem.user;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.enterprisecasemanagementsystem.*;
+import org.example.enterprisecasemanagementsystem.exception.BusinessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -24,14 +26,26 @@ public class UserController {
     @PostMapping
     public ResponseEntity<ApiResponse<UserResponseDTO>> createUser(
             @Valid @RequestBody CreateUserRequestDTO requestDTO) {
-        User user = createUserUseCase.execute(
-                requestDTO.getEmail(),
-                requestDTO.getPassword(),
-                requestDTO.getRole()
-        );
-        UserResponseDTO responseDTO = UserResponseDTO.fromEntity(user);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(responseDTO, "User created successfully"));
+        try {
+            Role role = requestDTO.getRoleAsEnum();
+
+            User user = createUserUseCase.execute(
+                    requestDTO.getEmail(),
+                    requestDTO.getPassword(),
+                    role
+            );
+
+            UserResponseDTO responseDTO = UserResponseDTO.fromEntity(user);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success(responseDTO, "User created successfully"));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(
+                            "Invalid role. Must be: ADMIN, STUDENT or TEACHER. Received: " + requestDTO.getRole(),
+                            null
+                    ));
+        }
     }
 
     @PutMapping("/{id}")
@@ -69,12 +83,54 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(null, "User deleted successfully"));
     }
 
-    @PutMapping("/{id}/role")
-    public ResponseEntity<ApiResponse<UserResponseDTO>> changeRole(
-            @PathVariable Long id,
-            @RequestParam Role role) {
-        User user = changeUserRoleUseCase.execute(id, role);
-        UserResponseDTO responseDTO = UserResponseDTO.fromEntity(user);
-        return ResponseEntity.ok(ApiResponse.success(responseDTO, "Role changed successfully"));
+    // @PutMapping("/{id}/role")
+    // public ResponseEntity<ApiResponse<UserResponseDTO>> changeRole(
+    //         @PathVariable Long id,
+    //         @RequestParam String roleStr) {  // String вместо Role
+    //     try {
+    //         Role role = Role.valueOf(roleStr.toUpperCase());
+    //         User user = changeUserRoleUseCase.execute(id, role);
+    //         UserResponseDTO responseDTO = UserResponseDTO.fromEntity(user);
+    //         return ResponseEntity.ok(ApiResponse.success(responseDTO, "Role changed successfully"));
+    //     } catch (IllegalArgumentException e) {
+    //         return ResponseEntity.badRequest()
+    //                 .body(ApiResponse.error("Invalid role: " + roleStr, null));
+    //     }
+    // }
+
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<UserResponseDTO>> register(
+            @Valid @RequestBody CreateUserRequestDTO requestDTO) {
+
+        try {
+            Role role = requestDTO.getRoleAsEnum();
+
+            if (role == Role.ADMIN) {
+                throw new BusinessException("Cannot register as ADMIN");
+            }
+
+            User user = createUserUseCase.execute(
+                    requestDTO.getEmail(),
+                    requestDTO.getPassword(),
+                    role
+            );
+            UserResponseDTO responseDTO = UserResponseDTO.fromEntity(user);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success(responseDTO, "User registered successfully"));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(
+                            "Invalid role. Must be: STUDENT or TEACHER. Received: " + requestDTO.getRole(),
+                            null
+                    ));
+        }
+    }
+
+    @PostMapping("/test")
+    public ResponseEntity<ApiResponse<String>> testEndpoint(@RequestBody Map<String, String> request) {
+        System.out.println("=== TEST ENDPOINT ===");
+        System.out.println("Request received: " + request);
+        return ResponseEntity.ok(ApiResponse.success("Test endpoint working", null));
     }
 }

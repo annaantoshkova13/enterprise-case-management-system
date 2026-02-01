@@ -1,10 +1,13 @@
 package org.example.enterprisecasemanagementsystem;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;  // Правильный импорт
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-
 import java.io.Serializable;
 import java.util.regex.Pattern;
+
 
 @Embeddable
 public class EmailValue implements Serializable {
@@ -16,9 +19,9 @@ public class EmailValue implements Serializable {
     private String value;
 
     public EmailValue() {
-        // Пустой конструктор для JPA
     }
 
+    @JsonCreator
     public EmailValue(String value) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("Email cannot be null or empty");
@@ -33,6 +36,7 @@ public class EmailValue implements Serializable {
         this.value = trimmedEmail;
     }
 
+    @JsonValue  // Добавь эту аннотацию
     public String getValue() {
         return value;
     }
