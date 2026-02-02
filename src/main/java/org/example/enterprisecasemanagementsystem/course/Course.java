@@ -52,6 +52,7 @@ public class Course {
         this.teacher = teacher;
         this.maxStudents = maxStudents != null ? maxStudents : 30;
         this.createdAt = LocalDateTime.now();
+        validateMaxStudents();
     }
 
     public void update(String title, String description) {
@@ -88,8 +89,20 @@ public class Course {
         return maxStudents;
     }
 
+    public void validateMaxStudents() {
+        if (maxStudents != null && maxStudents < 1) {
+            throw new BusinessException("Max students must be at least 1");
+        }
+    }
+
     public void setMaxStudents(Integer maxStudents) {
-        this.maxStudents = maxStudents;
+        if (maxStudents != null && maxStudents < getCurrentEnrollment()) {
+            throw new BusinessException(
+                    "Cannot set max students to " + maxStudents +
+                            " when there are already " + getCurrentEnrollment() + " students enrolled"
+            );
+        }
+        this.maxStudents = maxStudents != null ? maxStudents : 30;
     }
 
     public Set<Student> getEnrolledStudents() {

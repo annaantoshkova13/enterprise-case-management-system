@@ -3,8 +3,12 @@ package org.example.enterprisecasemanagementsystem.user;
 import jakarta.persistence.*;
 import org.example.enterprisecasemanagementsystem.EmailValue;
 import org.example.enterprisecasemanagementsystem.Role;
+import org.example.enterprisecasemanagementsystem.student.Student;
+import org.example.enterprisecasemanagementsystem.teacher.Teacher;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table (name = "users")
@@ -29,6 +33,12 @@ public class User {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Teacher> teachers = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Student> students = new HashSet<>();
 
     public User(EmailValue email, String passwordHash, Role role) {
         this.email = email;

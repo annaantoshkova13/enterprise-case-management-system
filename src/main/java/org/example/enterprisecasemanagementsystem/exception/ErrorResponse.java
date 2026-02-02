@@ -78,7 +78,6 @@ public class ErrorResponse {
         this.validationErrors = validationErrors;
     }
 
-    // toString метод для отладки
     @Override
     public String toString() {
         return "ErrorResponse{" +
