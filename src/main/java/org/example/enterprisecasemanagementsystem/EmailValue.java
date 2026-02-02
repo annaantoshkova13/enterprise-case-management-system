@@ -2,14 +2,17 @@ package org.example.enterprisecasemanagementsystem;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;  // Правильный импорт
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+
+
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
 
 @Embeddable
+@JsonDeserialize(using = EmailValueDeserializer.class)
 public class EmailValue implements Serializable {
 
     private static final Pattern EMAIL_PATTERN =

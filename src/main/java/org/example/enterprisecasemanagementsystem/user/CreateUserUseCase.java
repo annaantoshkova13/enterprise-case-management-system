@@ -16,7 +16,7 @@ public class CreateUserUseCase {
     private final PasswordEncoder passwordEncoder;
 
     public User execute(String email, String password, Role role) {
-        if (userRepository.findByEmail(email).isPresent()) {
+        if (userRepository.existsByEmail(email)) {
             throw new BusinessException("User with email " + email + " already exists");
         }
 

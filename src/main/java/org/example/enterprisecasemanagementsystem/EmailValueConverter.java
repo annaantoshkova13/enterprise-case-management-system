@@ -9,10 +9,15 @@ public class EmailValueConverter implements Converter<String, EmailValue> {
     @Override
     public EmailValue convert(String source) {
         System.out.println("=== EMAIL VALUE CONVERTER CALLED ===");
-        System.out.println("Converting string to EmailValue: " + source);
-        System.out.println("Stack trace:");
-        new Exception("Converter stack trace").printStackTrace();
+        System.out.println("Source: " + source);
 
-        return new EmailValue(source);
+        try {
+            EmailValue emailValue = new EmailValue(source);
+            System.out.println("Converted to: " + emailValue);
+            return emailValue;
+        } catch (Exception e) {
+            System.out.println("Conversion error: " + e.getMessage());
+            throw e;
+        }
     }
 }

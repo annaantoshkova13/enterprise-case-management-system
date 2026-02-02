@@ -19,8 +19,10 @@ public class UpdateUserProfileUseCase {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
-        if (!user.getEmail().getValue().equals(newEmail) &&
-                userRepository.findByEmail(newEmail).isPresent()) {
+        String currentEmail = user.getEmailString();
+
+        if (!currentEmail.equals(newEmail) &&
+                userRepository.existsByEmail(newEmail)) {
             throw new BusinessException("Email " + newEmail + " is already taken");
         }
 

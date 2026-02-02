@@ -1,5 +1,7 @@
 package org.example.enterprisecasemanagementsystem.user;
 
+import org.example.enterprisecasemanagementsystem.EmailValue;
+
 import java.util.List;
 import java.util.Optional;
 
