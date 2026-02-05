@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.example.enterprisecasemanagementsystem.exception.BusinessException;
 import org.example.enterprisecasemanagementsystem.student.Student;
 import org.example.enterprisecasemanagementsystem.teacher.Teacher;
+import org.example.enterprisecasemanagementsystem.student.Student;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -81,9 +82,8 @@ public class Course {
         enrolledStudents.remove(student);
     }
 
-    public boolean isStudentEnrolled(Long studentId) {
-        return enrolledStudents.stream()
-                .anyMatch(student -> student.getId().equals(studentId));
+    public boolean isStudentEnrolled(Student student) {
+        return enrolledStudents.contains(student);
     }
 
     public Integer getMaxStudents() {

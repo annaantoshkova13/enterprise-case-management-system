@@ -2,10 +2,9 @@
 <project version="4">
   <component name="DataSourcePerFileMappings">
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V1__create_users_table.sql" value="8e69a2f6-3e4a-47c3-beb6-dd2458bd642d" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V2__create_profiles_table.sql" value="8e69a2f6-3e4a-47c3-beb6-dd2458bd642d" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V2__create_teachers_table.sql" value="8e69a2f6-3e4a-47c3-beb6-dd2458bd642d" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V3__create_students_table.sql" value="8e69a2f6-3e4a-47c3-beb6-dd2458bd642d" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V4__create_teachers_table.sql" value="8e69a2f6-3e4a-47c3-beb6-dd2458bd642d" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V5_create_course_table.sql" value="8e69a2f6-3e4a-47c3-beb6-dd2458bd642d" />
     <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/8e69a2f6-3e4a-47c3-beb6-dd2458bd642d/console.sql" value="8e69a2f6-3e4a-47c3-beb6-dd2458bd642d" />
+    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/8e69a2f6-3e4a-47c3-beb6-dd2458bd642d/console_2.sql" value="8e69a2f6-3e4a-47c3-beb6-dd2458bd642d" />
   </component>
 </project>

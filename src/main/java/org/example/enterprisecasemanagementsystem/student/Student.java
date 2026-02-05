@@ -1,7 +1,6 @@
 package org.example.enterprisecasemanagementsystem.student;
 
 import jakarta.persistence.*;
-import org.apache.catalina.Group;
 import org.example.enterprisecasemanagementsystem.profile.Profile;
 import org.example.enterprisecasemanagementsystem.user.User;
 
@@ -24,7 +23,6 @@ public class Student extends Profile {
         this.user = user;
     }
 
-    // Добавьте конструктор с User и String (для группы)
     public Student(User user, String groupName) {
         this.user = user;
         this.groupName = groupName;
