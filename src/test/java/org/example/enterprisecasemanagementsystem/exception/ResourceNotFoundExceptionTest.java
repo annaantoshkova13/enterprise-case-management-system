@@ -1,6 +1,5 @@
-package org.example.enterprisecasemanagementsystem;
+package org.example.enterprisecasemanagementsystem.exception;
 
-import org.example.enterprisecasemanagementsystem.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -1,14 +1,9 @@
-package org.example.enterprisecasemanagementsystem;
+package org.example.enterprisecasemanagementsystem.user;
 
+import org.example.enterprisecasemanagementsystem.Role;
 import org.example.enterprisecasemanagementsystem.exception.BusinessException;
-import org.example.enterprisecasemanagementsystem.user.CreateUserUseCase;
-import org.example.enterprisecasemanagementsystem.user.User;
-import org.example.enterprisecasemanagementsystem.user.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,7 +15,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CreateUserUseCaseTest {
-
     @Mock
     private UserRepository userRepository;
 
@@ -30,29 +24,28 @@ class CreateUserUseCaseTest {
     @InjectMocks
     private CreateUserUseCase createUserUseCase;
 
-    @Captor
-    private ArgumentCaptor<User> userCaptor;
-
-    @BeforeEach
-    void setUp() {
-    }
-
     @Test
     void shouldCreateUser_WhenEmailIsUnique() {
+        // Given
         String email = "test@example.com";
         String password = "password123";
         Role role = Role.STUDENT;
 
         when(userRepository.existsByEmail(email)).thenReturn(false);
         when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            user.setId(1L);
+            return user;
+        });
 
-        User createdUser = createUserUseCase.execute(email, password, role);
+        User result = createUserUseCase.execute(email, password, role);
 
-        assertNotNull(createdUser);
-        assertEquals(email, createdUser.getEmail().getValue());
-        assertEquals(role, createdUser.getRole());
+        assertNotNull(result);
+        assertEquals(email, result.getEmailString());
+        assertEquals("encodedPassword", result.getPasswordHash());
+        assertEquals(role, result.getRole());
+        assertEquals(1L, result.getId());
 
         verify(userRepository).existsByEmail(email);
         verify(passwordEncoder).encode(password);
@@ -60,20 +53,18 @@ class CreateUserUseCaseTest {
     }
 
     @Test
-    void shouldThrowException_WhenEmailAlreadyExists() {
+    void shouldThrowBusinessException_WhenEmailAlreadyExists() {
         String email = "existing@example.com";
         String password = "password123";
         Role role = Role.STUDENT;
 
         when(userRepository.existsByEmail(email)).thenReturn(true);
 
-        BusinessException ex = assertThrows(
-                BusinessException.class,
+        BusinessException ex = assertThrows(BusinessException.class,
                 () -> createUserUseCase.execute(email, password, role)
         );
 
         assertEquals("User with email " + email + " already exists", ex.getMessage());
-
         verify(userRepository).existsByEmail(email);
         verify(passwordEncoder, never()).encode(any());
         verify(userRepository, never()).save(any());
