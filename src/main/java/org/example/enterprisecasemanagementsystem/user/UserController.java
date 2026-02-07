@@ -106,7 +106,8 @@ public class UserController {
             Role role = requestDTO.getRoleAsEnum();
 
             if (role == Role.ADMIN) {
-                throw new BusinessException("Cannot register as ADMIN");
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error("Cannot register as ADMIN", null));
             }
 
             User user = createUserUseCase.execute(
@@ -124,6 +125,9 @@ public class UserController {
                             "Invalid role. Must be: STUDENT or TEACHER. Received: " + requestDTO.getRole(),
                             null
                     ));
+        } catch (BusinessException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage(), null));
         }
     }
 
