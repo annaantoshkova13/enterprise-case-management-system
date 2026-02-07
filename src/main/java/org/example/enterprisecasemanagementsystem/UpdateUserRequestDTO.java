@@ -10,7 +10,6 @@ public class UpdateUserRequestDTO {
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
-    // Конструкторы
     public UpdateUserRequestDTO() {
     }
 

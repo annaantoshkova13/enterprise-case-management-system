@@ -59,6 +59,6 @@ public class CreateCourseRequestDTO {
     }
 
     public void setMaxStudents(Integer maxStudents) {
-        this.maxStudents = maxStudents;
+        this.maxStudents = maxStudents != null ? maxStudents : 30;
     }
 }

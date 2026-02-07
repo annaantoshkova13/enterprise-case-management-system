@@ -14,10 +14,19 @@ public class ChangeUserRoleUseCase {
     }
 
     public User execute(Long userId, Role newRole) {
+        if (newRole == null) {
+            throw new IllegalArgumentException("New role cannot be null");
+        }
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
+        if (user.getRole() == newRole) {
+            return user;
+        }
+
         user.setRole(newRole);
+
         return userRepository.save(user);
     }
 }

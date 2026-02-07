@@ -19,6 +19,10 @@ public class StudentResponseDTO {
     }
 
     public static StudentResponseDTO fromEntity(org.example.enterprisecasemanagementsystem.student.Student student) {
+        if (student == null) {
+            return null;
+        }
+
         return new StudentResponseDTO(
                 student.getId(),
                 student.getFirstName(),

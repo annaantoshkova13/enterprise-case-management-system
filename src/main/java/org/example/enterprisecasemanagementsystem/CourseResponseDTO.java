@@ -1,7 +1,11 @@
 package org.example.enterprisecasemanagementsystem;
 
+import org.example.enterprisecasemanagementsystem.course.Course;
+import org.example.enterprisecasemanagementsystem.student.Student;
+
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class CourseResponseDTO {
 
@@ -25,6 +29,49 @@ public class CourseResponseDTO {
         this.maxStudents = maxStudents;
         this.teacher = teacher;
         this.enrolledStudentIds = enrolledStudentIds;
+    }
+
+    public static CourseResponseDTO fromEntity(Course course) {
+        if (course == null) {
+            return null;
+        }
+
+        TeacherResponseDTO teacherDTO = null;
+        if (course.getTeacher() != null) {
+            teacherDTO = TeacherResponseDTO.fromEntity(course.getTeacher());
+        }
+
+        Set<Long> studentIds = null;
+        if (course.getEnrolledStudents() != null) {
+            studentIds = course.getEnrolledStudents().stream()
+                    .map(Student::getId)
+                    .collect(Collectors.toSet());
+        }
+
+        return new CourseResponseDTO(
+                course.getId(),
+                course.getTitle(),
+                course.getDescription(),
+                course.getCreatedAt(),
+                course.getMaxStudents(),
+                teacherDTO,
+                studentIds
+        );
+    }
+
+    public Integer getCurrentEnrollment() {
+        return this.enrolledStudentIds != null ? this.enrolledStudentIds.size() : 0;
+    }
+
+    public Integer getAvailableSlots() {
+        if (maxStudents == null || enrolledStudentIds == null) {
+            return 0;
+        }
+        return Math.max(0, maxStudents - enrolledStudentIds.size());
+    }
+
+    public Boolean hasAvailableSlots() {
+        return getAvailableSlots() > 0;
     }
 
     public Long getId() {

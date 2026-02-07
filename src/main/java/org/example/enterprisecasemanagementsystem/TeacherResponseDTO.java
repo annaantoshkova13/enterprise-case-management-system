@@ -20,12 +20,21 @@ public class TeacherResponseDTO {
     }
 
     public static TeacherResponseDTO fromEntity(org.example.enterprisecasemanagementsystem.teacher.Teacher teacher) {
+        if (teacher == null) {
+            return null;
+        }
+
+        UserResponseDTO userDTO = null;
+        if (teacher.getUser() != null) {
+            userDTO = UserResponseDTO.fromEntity(teacher.getUser());
+        }
+
         return new TeacherResponseDTO(
                 teacher.getId(),
                 teacher.getFirstName(),
                 teacher.getLastName(),
                 teacher.getDepartment(),
-                UserResponseDTO.fromEntity(teacher.getUser())
+                userDTO
         );
     }
 

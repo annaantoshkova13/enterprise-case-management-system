@@ -22,6 +22,10 @@ public class UserResponseDTO {
     }
 
     public static UserResponseDTO fromEntity(org.example.enterprisecasemanagementsystem.user.User user) {
+        if (user == null) {
+            return null;
+        }
+
         return new UserResponseDTO(
                 user.getId(),
                 user.getEmailString(),

@@ -15,8 +15,9 @@ import java.util.regex.Pattern;
 @JsonDeserialize(using = EmailValueDeserializer.class)
 public class EmailValue implements Serializable {
 
-    private static final Pattern EMAIL_PATTERN =
-            Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+            "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$"
+    );
 
     @Column(name = "email", nullable = false, unique = true)
     private String value;
@@ -32,14 +33,14 @@ public class EmailValue implements Serializable {
 
         String trimmedEmail = value.trim().toLowerCase();
 
-        if (!EMAIL_PATTERN.matcher(trimmedEmail).matches()) {
+        if (!isValid(trimmedEmail)) {
             throw new IllegalArgumentException("Invalid email format: " + value);
         }
 
         this.value = trimmedEmail;
     }
 
-    @JsonValue  // Добавь эту аннотацию
+    @JsonValue
     public String getValue() {
         return value;
     }
@@ -66,6 +67,36 @@ public class EmailValue implements Serializable {
         if (email == null || email.isBlank()) {
             return false;
         }
-        return EMAIL_PATTERN.matcher(email.trim().toLowerCase()).matches();
+
+        String trimmedEmail = email.trim().toLowerCase();
+
+        if (!trimmedEmail.contains("@")) {
+            return false;
+        }
+
+        String[] parts = trimmedEmail.split("@");
+        if (parts.length != 2) {
+            return false;
+        }
+
+        String localPart = parts[0];
+        String domainPart = parts[1];
+
+        if (localPart.isEmpty() || localPart.length() > 64) {
+            return false;
+        }
+
+        if (domainPart.isEmpty() || domainPart.length() > 255) {
+            return false;
+        }
+
+        if (!domainPart.contains(".")) {
+        }
+
+        if (domainPart.contains("..") || localPart.contains("..")) {
+            return false;
+        }
+
+        return EMAIL_PATTERN.matcher(trimmedEmail).matches();
     }
 }

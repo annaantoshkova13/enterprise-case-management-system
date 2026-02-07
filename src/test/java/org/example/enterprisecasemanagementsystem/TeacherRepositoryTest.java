@@ -1,0 +1,284 @@
+package org.example.enterprisecasemanagementsystem;
+
+import org.example.enterprisecasemanagementsystem.teacher.Teacher;
+import org.example.enterprisecasemanagementsystem.teacher.TeacherRepository;
+import org.example.enterprisecasemanagementsystem.user.User;
+import org.example.enterprisecasemanagementsystem.user.UserRepository;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest
+@ActiveProfiles("test")
+@Transactional
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+class TeacherRepositoryTest {
+
+    @Autowired
+    private TeacherRepository teacherRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Test
+    void shouldSaveAndFindTeacher() {
+        User user = new User("teacher@example.com", "password", Role.TEACHER);
+        userRepository.save(user);
+
+        Teacher teacher = new Teacher("John", "Doe", "Computer Science", user);
+
+        Teacher saved = teacherRepository.save(teacher);
+        Optional<Teacher> found = teacherRepository.findById(saved.getId());
+
+        assertTrue(found.isPresent());
+        assertEquals("John", found.get().getFirstName());
+        assertEquals("Doe", found.get().getLastName());
+        assertEquals("Computer Science", found.get().getDepartment());
+        assertEquals(user, found.get().getUser());
+    }
+
+    @Test
+    void shouldFindByUser() {
+        User user = new User("unique-teacher-test@example.com", "password", Role.TEACHER);
+        userRepository.save(user);
+
+        Teacher teacher = new Teacher("Jane", "Doe", "Physics", user);
+        teacherRepository.save(teacher);
+
+        Optional<Teacher> found = teacherRepository.findByUser(user);
+
+        assertTrue(found.isPresent());
+        assertEquals("Jane", found.get().getFirstName());
+        assertEquals(user, found.get().getUser());
+    }
+
+    @Test
+    void shouldReturnEmpty_WhenUserHasNoTeacher() {
+        User user = new User("noteacher@example.com", "password", Role.STUDENT);
+        userRepository.save(user);
+
+        Optional<Teacher> found = teacherRepository.findByUser(user);
+
+        assertFalse(found.isPresent());
+    }
+
+    @Test
+    void shouldDeleteTeacher() {
+        User user = new User("delete-teacher@example.com", "password", Role.TEACHER);
+        userRepository.save(user);
+
+        Teacher teacher = new Teacher("Delete", "Me", "Chemistry", user);
+        teacherRepository.save(teacher);
+
+        teacherRepository.delete(teacher);
+
+        Optional<Teacher> found = teacherRepository.findById(teacher.getId());
+        assertFalse(found.isPresent());
+    }
+
+    @Test
+    void shouldUpdateTeacherDepartment() {
+        User user = new User("update-teacher@example.com", "password", Role.TEACHER);
+        userRepository.save(user);
+
+        Teacher teacher = new Teacher("Update", "Department", "Biology", user);
+        teacherRepository.save(teacher);
+
+        teacher.setDepartment("Advanced Biology");
+        Teacher updated = teacherRepository.save(teacher);
+
+        assertEquals("Advanced Biology", updated.getDepartment());
+    }
+
+    @Test
+    void shouldFindAllTeachers() {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        User user1 = new User("user1-teacher-all-test-" + timestamp + "@example.com", "pass", Role.TEACHER);
+        User user2 = new User("user2-teacher-all-test-" + timestamp + "@example.com", "pass", Role.TEACHER);
+        userRepository.save(user1);
+        userRepository.save(user2);
+
+        Teacher teacher1 = new Teacher("Alice", "Smith", "Computer Science", user1);
+        Teacher teacher2 = new Teacher("Bob", "Johnson", "Mathematics", user2);
+
+        teacherRepository.save(teacher1);
+        teacherRepository.save(teacher2);
+
+        List<Teacher> teachers = teacherRepository.findAll();
+
+        long ourTeachersCount = teachers.stream()
+                .filter(t -> t.getUser().getEmail().toString().contains("teacher-all-test-" + timestamp))
+                .count();
+
+        assertEquals(2, ourTeachersCount);
+        boolean hasAlice = teachers.stream()
+                .anyMatch(t -> t.getFirstName().equals("Alice") &&
+                        t.getUser().getEmail().toString().contains("teacher-all-test-" + timestamp));
+        boolean hasBob = teachers.stream()
+                .anyMatch(t -> t.getFirstName().equals("Bob") &&
+                        t.getUser().getEmail().toString().contains("teacher-all-test-" + timestamp));
+
+        assertTrue(hasAlice);
+        assertTrue(hasBob);
+    }
+
+    @Test
+    void shouldCountTeachers() {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        User user1 = new User("user1-teacher-count-test-" + timestamp + "@example.com", "pass", Role.TEACHER);
+        User user2 = new User("user2-teacher-count-test-" + timestamp + "@example.com", "pass", Role.TEACHER);
+        userRepository.save(user1);
+        userRepository.save(user2);
+
+        Teacher teacher1 = new Teacher("Alice", "Smith", "Computer Science", user1);
+        Teacher teacher2 = new Teacher("Bob", "Johnson", "Mathematics", user2);
+
+        teacherRepository.save(teacher1);
+        teacherRepository.save(teacher2);
+
+        long ourTeachersCount = teacherRepository.findAll().stream()
+                .filter(t -> t.getUser().getEmail().toString().contains("teacher-count-test-" + timestamp))
+                .count();
+
+        assertEquals(2, ourTeachersCount);
+    }
+
+    @Test
+    void shouldFindByFirstNameContaining() {
+        User user1 = new User("search1-teacher-test@example.com", "password", Role.TEACHER);
+        User user2 = new User("search2-teacher-test@example.com", "password", Role.TEACHER);
+        User user3 = new User("search3-teacher-test@example.com", "password", Role.TEACHER);
+
+        userRepository.save(user1);
+        userRepository.save(user2);
+        userRepository.save(user3);
+
+        Teacher teacher1 = new Teacher("John", "Smith", "Physics", user1);
+        Teacher teacher2 = new Teacher("Johnny", "Johnson", "Chemistry", user2);
+        Teacher teacher3 = new Teacher("Robert", "Brown", "Biology", user3);
+
+        teacherRepository.save(teacher1);
+        teacherRepository.save(teacher2);
+        teacherRepository.save(teacher3);
+
+        List<Teacher> johnTeachers = teacherRepository.findByFirstNameContainingIgnoreCase("John");
+
+        assertEquals(2, johnTeachers.size());
+        assertTrue(johnTeachers.stream().allMatch(t -> t.getFirstName().toLowerCase().contains("john")));
+    }
+
+    @Test
+    void shouldFindByLastName() {
+        User user1 = new User("lastname1-teacher-test@example.com", "password", Role.TEACHER);
+        User user2 = new User("lastname2-teacher-test@example.com", "password", Role.TEACHER);
+        User user3 = new User("lastname3-teacher-test@example.com", "password", Role.TEACHER);
+
+        userRepository.save(user1);
+        userRepository.save(user2);
+        userRepository.save(user3);
+
+        Teacher teacher1 = new Teacher("Alice", "Smith", "Physics", user1);
+        Teacher teacher2 = new Teacher("Bob", "Smith", "Chemistry", user2);
+        Teacher teacher3 = new Teacher("Charlie", "Johnson", "Biology", user3);
+
+        teacherRepository.save(teacher1);
+        teacherRepository.save(teacher2);
+        teacherRepository.save(teacher3);
+
+        List<Teacher> smithTeachers = teacherRepository.findByLastName("Smith");
+
+        assertEquals(2, smithTeachers.size());
+        assertTrue(smithTeachers.stream().allMatch(t -> t.getLastName().equals("Smith")));
+    }
+
+    @Test
+    void shouldFindByDepartment() {
+        User user1 = new User("dept1-teacher-test@example.com", "password", Role.TEACHER);
+        User user2 = new User("dept2-teacher-test@example.com", "password", Role.TEACHER);
+        User user3 = new User("dept3-teacher-test@example.com", "password", Role.TEACHER);
+
+        userRepository.save(user1);
+        userRepository.save(user2);
+        userRepository.save(user3);
+
+        Teacher teacher1 = new Teacher("Alice", "Smith", "Computer Science", user1);
+        Teacher teacher2 = new Teacher("Bob", "Johnson", "Computer Science", user2);
+        Teacher teacher3 = new Teacher("Charlie", "Brown", "Mathematics", user3);
+
+        teacherRepository.save(teacher1);
+        teacherRepository.save(teacher2);
+        teacherRepository.save(teacher3);
+
+        List<Teacher> csTeachers = teacherRepository.findByDepartment("Computer Science");
+
+        assertEquals(2, csTeachers.size());
+        assertTrue(csTeachers.stream().allMatch(t -> t.getDepartment().equals("Computer Science")));
+    }
+
+    @Test
+    void shouldFindByDepartmentContaining() {
+        User user1 = new User("deptcont1-teacher-test@example.com", "password", Role.TEACHER);
+        User user2 = new User("deptcont2-teacher-test@example.com", "password", Role.TEACHER);
+        User user3 = new User("deptcont3-teacher-test@example.com", "password", Role.TEACHER);
+
+        userRepository.save(user1);
+        userRepository.save(user2);
+        userRepository.save(user3);
+
+        Teacher teacher1 = new Teacher("Alice", "Smith", "Computer Science", user1);
+        Teacher teacher2 = new Teacher("Bob", "Johnson", "Computer Engineering", user2);
+        Teacher teacher3 = new Teacher("Charlie", "Brown", "Mathematics", user3);
+
+        teacherRepository.save(teacher1);
+        teacherRepository.save(teacher2);
+        teacherRepository.save(teacher3);
+
+        List<Teacher> computerTeachers = teacherRepository.findByDepartmentContainingIgnoreCase("Computer");
+
+        assertEquals(2, computerTeachers.size());
+        assertTrue(computerTeachers.stream().allMatch(t -> t.getDepartment().toLowerCase().contains("computer")));
+    }
+
+    @Test
+    void shouldCheckIfTeacherExistsById() {
+        User user = new User("exists-teacher@example.com", "password", Role.TEACHER);
+        userRepository.save(user);
+
+        Teacher teacher = new Teacher("Exists", "Teacher", "Test Department", user);
+        Teacher saved = teacherRepository.save(teacher);
+
+        boolean exists = teacherRepository.existsById(saved.getId());
+        assertTrue(exists);
+
+        boolean notExists = teacherRepository.existsById(999L);
+        assertFalse(notExists);
+    }
+
+    @Test
+    void shouldFindAllById() {
+        User user1 = new User("id1-teacher-test@example.com", "password", Role.TEACHER);
+        User user2 = new User("id2-teacher-test@example.com", "password", Role.TEACHER);
+        userRepository.save(user1);
+        userRepository.save(user2);
+
+        Teacher teacher1 = new Teacher("Teacher1", "Test", "Dept1", user1);
+        Teacher teacher2 = new Teacher("Teacher2", "Test", "Dept2", user2);
+
+        Teacher saved1 = teacherRepository.save(teacher1);
+        Teacher saved2 = teacherRepository.save(teacher2);
+
+        List<Teacher> teachers = teacherRepository.findAllById(List.of(saved1.getId(), saved2.getId()));
+
+        assertEquals(2, teachers.size());
+        assertTrue(teachers.stream().anyMatch(t -> t.getId().equals(saved1.getId())));
+        assertTrue(teachers.stream().anyMatch(t -> t.getId().equals(saved2.getId())));
+    }
+}
