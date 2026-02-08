@@ -22,9 +22,13 @@ class TeacherCourseIntegrationTest {
     @Autowired private UserRepository userRepository;
     @Autowired private CourseRepository courseRepository;
 
+    // Используем длинные пароли
+    private static final String TEST_PASSWORD = "password123";
+    private static final String TEST_PASSWORD_ALT = "password456";
+
     @Test
     void shouldCreateCourseWithTeacher() {
-        User teacherUser = new User("teacher-create@uni.com", "pass", Role.TEACHER);
+        User teacherUser = new User("teacher-create@uni.com", TEST_PASSWORD, Role.TEACHER);
         userRepository.save(teacherUser);
 
         Teacher teacher = new Teacher("John", "Doe", "Computer Science", teacherUser);
@@ -63,7 +67,7 @@ class TeacherCourseIntegrationTest {
 
     @Test
     void shouldListAllTeacherCourses() {
-        User teacherUser = new User("teacher-list@uni.com", "pass", Role.TEACHER);
+        User teacherUser = new User("teacher-list@uni.com", TEST_PASSWORD, Role.TEACHER);
         userRepository.save(teacherUser);
 
         Teacher teacher = new Teacher("Jane", "Smith", "Physics", teacherUser);
@@ -78,7 +82,7 @@ class TeacherCourseIntegrationTest {
         courseRepository.save(course2);
         courseRepository.save(course3);
 
-        User otherTeacherUser = new User("other-teacher@uni.com", "pass", Role.TEACHER);
+        User otherTeacherUser = new User("other-teacher@uni.com", TEST_PASSWORD_ALT, Role.TEACHER);
         userRepository.save(otherTeacherUser);
         Teacher otherTeacher = new Teacher("Bob", "Johnson", "Chemistry", otherTeacherUser);
         teacherRepository.save(otherTeacher);
@@ -105,7 +109,7 @@ class TeacherCourseIntegrationTest {
 
     @Test
     void shouldUpdateCourseDetails() {
-        User teacherUser = new User("teacher-update@uni.com", "pass", Role.TEACHER);
+        User teacherUser = new User("teacher-update@uni.com", TEST_PASSWORD, Role.TEACHER);
         userRepository.save(teacherUser);
 
         Teacher teacher = new Teacher("John", "Doe", "Mathematics", teacherUser);

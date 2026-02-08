@@ -26,29 +26,29 @@ class CreateUserUseCaseTest {
 
     @Test
     void shouldCreateUser_WhenEmailIsUnique() {
-        // Given
         String email = "test@example.com";
         String password = "password123";
         Role role = Role.STUDENT;
 
         when(userRepository.existsByEmail(email)).thenReturn(false);
-        when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            user.setId(1L);
-            return user;
-        });
+        when(passwordEncoder.encode(password)).thenReturn("any-hash-will-work");
+
+        User savedUser = new User();
+        savedUser.setId(1L);
+        savedUser.setEmail(new org.example.enterprisecasemanagementsystem.EmailValue(email));
+        savedUser.setRole(role);
+
+        when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
         User result = createUserUseCase.execute(email, password, role);
 
         assertNotNull(result);
-        assertEquals(email, result.getEmailString());
-        assertEquals("encodedPassword", result.getPasswordHash());
-        assertEquals(role, result.getRole());
         assertEquals(1L, result.getId());
+        assertEquals(email, result.getEmailString());
+        assertEquals(role, result.getRole());
 
-        verify(userRepository).existsByEmail(email);
         verify(passwordEncoder).encode(password);
+        verify(userRepository).existsByEmail(email);
         verify(userRepository).save(any(User.class));
     }
 

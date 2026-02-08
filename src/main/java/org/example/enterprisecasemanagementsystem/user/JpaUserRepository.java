@@ -13,18 +13,22 @@ import java.util.Optional;
 @Repository
 public interface JpaUserRepository extends UserRepository, JpaRepository<User, Long> {
 
+    @Override
     @Query("SELECT u FROM User u WHERE u.email.value = :email")
     Optional<User> findByEmail(@Param("email") String email);
 
-    @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE u.email.value = :email")
+    @Override
+    @Query("SELECT COUNT(u) > 0 FROM User u WHERE u.email.value = :email")
     boolean existsByEmail(@Param("email") String email);
 
-    @Query("SELECT u FROM User u WHERE u.email = :emailValue")
-    Optional<User> findByEmailValue(@Param("emailValue") EmailValue emailValue);
-
+    @Override
     @Query("SELECT u FROM User u WHERE u.role = :role")
     List<User> findByRole(@Param("role") Role role);
 
+    @Override
     @Query("SELECT u FROM User u WHERE LOWER(u.email.value) = LOWER(:email)")
     Optional<User> findByEmailIgnoreCase(@Param("email") String email);
+
+    @Query("SELECT u FROM User u WHERE u.email = :emailValue")
+    Optional<User> findByEmailValue(@Param("emailValue") EmailValue emailValue);
 }

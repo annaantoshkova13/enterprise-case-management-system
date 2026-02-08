@@ -2,6 +2,8 @@ package org.example.enterprisecasemanagementsystem.student;
 
 import org.example.enterprisecasemanagementsystem.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,14 +13,22 @@ import java.util.Optional;
 public interface JpaStudentRepository extends StudentRepository, JpaRepository<Student, Long> {
 
     @Override
-    List<Student> findByGroupName(String groupName);
+    @Query("SELECT s FROM Student s WHERE s.groupName = :groupName")
+    List<Student> findByGroupName(@Param("groupName") String groupName);
 
     @Override
-    Optional<Student> findByUser(User user);
+    @Query("SELECT s FROM Student s WHERE s.user = :user")
+    Optional<Student> findByUser(@Param("user") User user);
 
     @Override
     List<Student> findByFirstNameContainingIgnoreCase(String firstName);
 
     @Override
     List<Student> findByLastName(String lastName);
+
+    @Override
+    long count();
+
+    @Override
+    void delete(Student student);
 }

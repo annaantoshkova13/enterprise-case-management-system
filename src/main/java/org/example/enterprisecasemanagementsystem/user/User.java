@@ -7,7 +7,7 @@ import org.example.enterprisecasemanagementsystem.EmailValue;
 import org.example.enterprisecasemanagementsystem.Role;
 import org.example.enterprisecasemanagementsystem.student.Student;
 import org.example.enterprisecasemanagementsystem.teacher.Teacher;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -28,7 +28,7 @@ public class User {
 
     @Setter
     @Getter
-    @Column(nullable = false)
+    @Column(name = "password_hash", nullable = false) // Убедитесь, что name правильный
     private String passwordHash;
 
     @Setter
@@ -47,12 +47,11 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Student> students = new HashSet<>();
 
-    private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public User(EmailValue email, String rawPassword, Role role) {
         validatePassword(rawPassword);
         this.email = email;
-        this.passwordHash = hashPassword(rawPassword);
+        this.passwordHash = rawPassword;
         this.role = role;
         this.createdAt = LocalDateTime.now();
     }
@@ -64,10 +63,6 @@ public class User {
     public User() {
     }
 
-    private String hashPassword(String rawPassword) {
-        return passwordEncoder.encode(rawPassword);
-    }
-
     private void validatePassword(String password) {
         if (password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("Password cannot be null or empty");
@@ -77,7 +72,7 @@ public class User {
         }
     }
 
-    public boolean checkPassword(String rawPassword) {
+    public boolean checkPassword(String rawPassword, PasswordEncoder passwordEncoder) {
         if (rawPassword == null) {
             return false;
         }

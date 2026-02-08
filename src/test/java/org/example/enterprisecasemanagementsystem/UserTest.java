@@ -24,7 +24,12 @@ public class UserTest {
         assertEquals(email, user.getEmail());
         assertEquals("hashedPassword123", user.getPasswordHash());
         assertEquals(Role.ADMIN, user.getRole());
-        assertNull(user.getCreatedAt());
+
+        assertNotNull(user.getCreatedAt());
+
+        LocalDateTime now = LocalDateTime.now();
+        assertTrue(user.getCreatedAt().isBefore(now) ||
+                user.getCreatedAt().isEqual(now));
     }
 
     @Test

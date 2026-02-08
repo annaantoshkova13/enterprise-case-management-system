@@ -56,7 +56,6 @@ class UserControllerTest {
 
     @Test
     void createUser_ShouldReturnCreatedUser_WhenValidRequest() {
-        // Arrange
         CreateUserRequestDTO requestDTO = new CreateUserRequestDTO(
                 "test@example.com",
                 "password123",
@@ -69,11 +68,9 @@ class UserControllerTest {
                 any(Role.class)
         )).thenReturn(mockUser);
 
-        // Act
         ResponseEntity<ApiResponse<UserResponseDTO>> response =
                 userController.createUser(requestDTO);
 
-        // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
 
@@ -95,18 +92,15 @@ class UserControllerTest {
 
     @Test
     void createUser_ShouldReturnError_WhenInvalidRole() {
-        // Arrange
         CreateUserRequestDTO requestDTO = new CreateUserRequestDTO(
                 "test@example.com",
                 "password123",
                 "INVALID_ROLE"
         );
 
-        // Act
         ResponseEntity<ApiResponse<UserResponseDTO>> response =
                 userController.createUser(requestDTO);
 
-        // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
 
@@ -119,7 +113,6 @@ class UserControllerTest {
 
     @Test
     void updateUser_ShouldUpdateSuccessfully_WhenValidRequest() {
-        // Arrange
         UpdateUserRequestDTO requestDTO = new UpdateUserRequestDTO(
                 "updated@example.com",
                 "newPassword123"
@@ -134,11 +127,9 @@ class UserControllerTest {
                 any(String.class)
         )).thenReturn(updatedUser);
 
-        // Act
         ResponseEntity<ApiResponse<UserResponseDTO>> response =
                 userController.updateUser(1L, requestDTO);
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isSuccess());
@@ -149,7 +140,6 @@ class UserControllerTest {
 
     @Test
     void updateUser_ShouldUpdateOnlyEmail_WhenPasswordIsNull() {
-        // Arrange
         UpdateUserRequestDTO requestDTO = new UpdateUserRequestDTO(
                 "updated@example.com",
                 null
@@ -161,11 +151,9 @@ class UserControllerTest {
                 eq(null)
         )).thenReturn(mockUser);
 
-        // Act
         ResponseEntity<ApiResponse<UserResponseDTO>> response =
                 userController.updateUser(1L, requestDTO);
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody().isSuccess());
 
@@ -174,7 +162,6 @@ class UserControllerTest {
 
     @Test
     void updateUser_ShouldUpdateOnlyPassword_WhenEmailIsNull() {
-        // Arrange
         UpdateUserRequestDTO requestDTO = new UpdateUserRequestDTO(
                 null,
                 "newPassword123"
@@ -186,11 +173,9 @@ class UserControllerTest {
                 any(String.class)
         )).thenReturn(mockUser);
 
-        // Act
         ResponseEntity<ApiResponse<UserResponseDTO>> response =
                 userController.updateUser(1L, requestDTO);
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody().isSuccess());
 
@@ -199,14 +184,11 @@ class UserControllerTest {
 
     @Test
     void getUser_ShouldReturnUser_WhenUserExists() {
-        // Arrange
         when(getUserByIdUseCase.execute(1L)).thenReturn(mockUser);
 
-        // Act
         ResponseEntity<ApiResponse<UserResponseDTO>> response =
                 userController.getUser(1L);
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isSuccess());
@@ -220,11 +202,9 @@ class UserControllerTest {
 
     @Test
     void getUser_ShouldThrowException_WhenUserNotFound() {
-        // Arrange
         when(getUserByIdUseCase.execute(999L))
                 .thenThrow(new ResourceNotFoundException("User", "id", 999L));
 
-        // Act & Assert
         ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
                 () -> userController.getUser(999L)
         );
@@ -235,22 +215,19 @@ class UserControllerTest {
 
     @Test
     void getAllUsers_ShouldReturnAllUsers() {
-        // Arrange
-        User user1 = new User("user1@example.com", "pass1", Role.STUDENT);
+        User user1 = new User("user1@example.com", "password123", Role.STUDENT);  // Исправлено
         user1.setId(1L);
 
-        User user2 = new User("user2@example.com", "pass2", Role.TEACHER);
+        User user2 = new User("user2@example.com", "password456", Role.TEACHER);  // Исправлено
         user2.setId(2L);
 
         List<User> users = Arrays.asList(user1, user2);
 
         when(listUsersUseCase.execute()).thenReturn(users);
 
-        // Act
         ResponseEntity<ApiResponse<List<UserResponseDTO>>> response =
                 userController.getAllUsers();
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
 
@@ -266,14 +243,11 @@ class UserControllerTest {
 
     @Test
     void getAllUsers_ShouldReturnEmptyList_WhenNoUsers() {
-        // Arrange
         when(listUsersUseCase.execute()).thenReturn(List.of());
 
-        // Act
         ResponseEntity<ApiResponse<List<UserResponseDTO>>> response =
                 userController.getAllUsers();
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
 
@@ -287,14 +261,11 @@ class UserControllerTest {
 
     @Test
     void deleteUser_ShouldDeleteSuccessfully() {
-        // Arrange
         doNothing().when(deleteUserUseCase).execute(1L);
 
-        // Act
         ResponseEntity<ApiResponse<Void>> response =
                 userController.deleteUser(1L);
 
-        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
 
@@ -308,7 +279,6 @@ class UserControllerTest {
 
     @Test
     void register_ShouldRegisterStudentSuccessfully() {
-        // Arrange
         CreateUserRequestDTO requestDTO = new CreateUserRequestDTO(
                 "student@example.com",
                 "password123",
@@ -321,11 +291,9 @@ class UserControllerTest {
                 eq(Role.STUDENT)
         )).thenReturn(mockUser);
 
-        // Act
         ResponseEntity<ApiResponse<UserResponseDTO>> response =
                 userController.register(requestDTO);
 
-        // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isSuccess());
@@ -340,7 +308,6 @@ class UserControllerTest {
 
     @Test
     void register_ShouldRegisterTeacherSuccessfully() {
-        // Arrange
         CreateUserRequestDTO requestDTO = new CreateUserRequestDTO(
                 "teacher@example.com",
                 "password123",
@@ -356,11 +323,9 @@ class UserControllerTest {
                 eq(Role.TEACHER)
         )).thenReturn(teacherUser);
 
-        // Act
         ResponseEntity<ApiResponse<UserResponseDTO>> response =
                 userController.register(requestDTO);
 
-        // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertTrue(response.getBody().isSuccess());
 
@@ -373,18 +338,15 @@ class UserControllerTest {
 
     @Test
     void register_ShouldReturnError_WhenTryingToRegisterAsAdmin() {
-        // Arrange
         CreateUserRequestDTO requestDTO = new CreateUserRequestDTO(
                 "admin@example.com",
                 "password123",
                 "ADMIN"
         );
 
-        // Act
         ResponseEntity<ApiResponse<UserResponseDTO>> response =
                 userController.register(requestDTO);
 
-        // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
         assertFalse(response.getBody().isSuccess());
@@ -395,7 +357,6 @@ class UserControllerTest {
 
     @Test
     void register_ShouldReturnError_WhenEmailAlreadyExists() {
-        // Arrange
         CreateUserRequestDTO requestDTO = new CreateUserRequestDTO(
                 "existing@example.com",
                 "password123",
@@ -408,11 +369,9 @@ class UserControllerTest {
                 any(Role.class)
         )).thenThrow(new BusinessException("User with email existing@example.com already exists"));
 
-        // Act
         ResponseEntity<ApiResponse<UserResponseDTO>> response =
                 userController.register(requestDTO);
 
-        // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
         assertFalse(response.getBody().isSuccess());

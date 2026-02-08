@@ -24,18 +24,26 @@ class AuthenticationIntegrationTest {
 
     @Test
     void shouldCreateUserWithEncryptedPassword() {
-        User user = createUserUseCase.execute(
-                "auth-test@example.com",
-                "plainPassword123",
-                Role.STUDENT
-        );
+        String email = "auth-test@example.com";
+        String plainPassword = "plainPassword123";
+        Role role = Role.STUDENT;
+
+        User user = createUserUseCase.execute(email, plainPassword, role);
+
+        System.out.println("Saved password hash: " + user.getPasswordHash());
+        System.out.println("Expected to match with: " + plainPassword);
 
         assertNotNull(user);
-        assertEquals("auth-test@example.com", user.getEmailString());
-        assertEquals(Role.STUDENT, user.getRole());
+        assertEquals(email, user.getEmailString());
+        assertEquals(role, user.getRole());
 
-        assertNotEquals("plainPassword123", user.getPasswordHash());
-        assertTrue(passwordEncoder.matches("plainPassword123", user.getPasswordHash()));
+        assertNotEquals(plainPassword, user.getPasswordHash());
+
+        assertTrue(user.getPasswordHash().startsWith("$2a$"));
+
+        boolean matches = passwordEncoder.matches(plainPassword, user.getPasswordHash());
+        System.out.println("Password matches: " + matches);
+        assertTrue(matches, "Password should match the hash");
     }
 
     @Test

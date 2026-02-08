@@ -24,8 +24,8 @@ class ListUsersUseCaseTest {
 
     @Test
     void shouldReturnAllUsers() {
-        User user1 = new User("user1@example.com", "pass1", Role.STUDENT);
-        User user2 = new User("user2@example.com", "pass2", Role.TEACHER);
+        User user1 = new User("user1@example.com", "password123", Role.STUDENT);
+        User user2 = new User("user2@example.com", "password456", Role.TEACHER);
         List<User> users = Arrays.asList(user1, user2);
 
         when(userRepository.findAll()).thenReturn(users);
@@ -50,9 +50,9 @@ class ListUsersUseCaseTest {
 
     @Test
     void shouldReturnUsersWithDifferentRoles() {
-        User student = new User("student@example.com", "pass", Role.STUDENT);
-        User teacher = new User("teacher@example.com", "pass", Role.TEACHER);
-        User admin = new User("admin@example.com", "pass", Role.ADMIN);
+        User student = new User("student@example.com", "student123", Role.STUDENT);
+        User teacher = new User("teacher@example.com", "teacher123", Role.TEACHER);
+        User admin = new User("admin@example.com", "admin12345", Role.ADMIN);
 
         when(userRepository.findAll()).thenReturn(Arrays.asList(student, teacher, admin));
 

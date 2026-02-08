@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD) // Добавьте эту аннотацию
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class StudentRepositoryTest {
 
     @Autowired
@@ -29,9 +29,14 @@ class StudentRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
+    // Используем длинные пароли для всех тестов
+    private static final String TEST_PASSWORD = "password123";
+    private static final String TEST_PASSWORD_ALT = "password456";
+    private static final String TEST_PASSWORD_ALT2 = "password789";
+
     @Test
     void shouldSaveAndFindStudent() {
-        User user = new User("student@example.com", "password", Role.STUDENT);
+        User user = new User("student@example.com", TEST_PASSWORD, Role.STUDENT);
         userRepository.save(user);
 
         Student student = new Student("Alice", "Smith", "CS-101", user);
@@ -48,9 +53,9 @@ class StudentRepositoryTest {
 
     @Test
     void shouldFindByGroupName() {
-        User user1 = new User("student1-group-test@example.com", "pass", Role.STUDENT);
-        User user2 = new User("student2-group-test@example.com", "pass", Role.STUDENT);
-        User user3 = new User("student3-group-test@example.com", "pass", Role.STUDENT); // Новый пользователь
+        User user1 = new User("student1-group-test@example.com", TEST_PASSWORD, Role.STUDENT);
+        User user2 = new User("student2-group-test@example.com", TEST_PASSWORD_ALT, Role.STUDENT);
+        User user3 = new User("student3-group-test@example.com", TEST_PASSWORD_ALT2, Role.STUDENT);
 
         userRepository.save(user1);
         userRepository.save(user2);
@@ -58,7 +63,7 @@ class StudentRepositoryTest {
 
         Student student1 = new Student("Alice", "Smith", "CS-101", user1);
         Student student2 = new Student("Bob", "Johnson", "CS-101", user2);
-        Student student3 = new Student("Charlie", "Brown", "CS-102", user3); // Используем user3
+        Student student3 = new Student("Charlie", "Brown", "CS-102", user3);
 
         studentRepository.save(student1);
         studentRepository.save(student2);
@@ -72,7 +77,7 @@ class StudentRepositoryTest {
 
     @Test
     void shouldFindByUser() {
-        User user = new User("unique@example.com", "password", Role.STUDENT);
+        User user = new User("unique@example.com", TEST_PASSWORD, Role.STUDENT);
         userRepository.save(user);
 
         Student student = new Student("John", "Doe", "CS-101", user);
@@ -87,7 +92,7 @@ class StudentRepositoryTest {
 
     @Test
     void shouldReturnEmpty_WhenUserHasNoStudent() {
-        User user = new User("nostudent@example.com", "password", Role.TEACHER);
+        User user = new User("nostudent@example.com", TEST_PASSWORD, Role.TEACHER);
         userRepository.save(user);
 
         Optional<Student> found = studentRepository.findByUser(user);
@@ -97,7 +102,7 @@ class StudentRepositoryTest {
 
     @Test
     void shouldDeleteStudent() {
-        User user = new User("delete@example.com", "password", Role.STUDENT);
+        User user = new User("delete@example.com", TEST_PASSWORD, Role.STUDENT);
         userRepository.save(user);
 
         Student student = new Student("Delete", "Me", "CS-101", user);
@@ -111,7 +116,7 @@ class StudentRepositoryTest {
 
     @Test
     void shouldUpdateStudentGroup() {
-        User user = new User("update@example.com", "password", Role.STUDENT);
+        User user = new User("update@example.com", TEST_PASSWORD, Role.STUDENT);
         userRepository.save(user);
 
         Student student = new Student("Update", "Group", "CS-101", user);
@@ -126,8 +131,8 @@ class StudentRepositoryTest {
     @Test
     void shouldFindAllStudents() {
         String timestamp = String.valueOf(System.currentTimeMillis());
-        User user1 = new User("user1-all-test-" + timestamp + "@example.com", "pass", Role.STUDENT);
-        User user2 = new User("user2-all-test-" + timestamp + "@example.com", "pass", Role.STUDENT);
+        User user1 = new User("user1-all-test-" + timestamp + "@example.com", TEST_PASSWORD, Role.STUDENT);
+        User user2 = new User("user2-all-test-" + timestamp + "@example.com", TEST_PASSWORD_ALT, Role.STUDENT);
         userRepository.save(user1);
         userRepository.save(user2);
 
@@ -155,12 +160,11 @@ class StudentRepositoryTest {
         assertTrue(hasBob);
     }
 
-
     @Test
     void shouldCountStudents() {
         String timestamp = String.valueOf(System.currentTimeMillis());
-        User user1 = new User("user1-count-test-" + timestamp + "@example.com", "pass", Role.STUDENT);
-        User user2 = new User("user2-count-test-" + timestamp + "@example.com", "pass", Role.STUDENT);
+        User user1 = new User("user1-count-test-" + timestamp + "@example.com", TEST_PASSWORD, Role.STUDENT);
+        User user2 = new User("user2-count-test-" + timestamp + "@example.com", TEST_PASSWORD_ALT, Role.STUDENT);
         userRepository.save(user1);
         userRepository.save(user2);
 
@@ -177,12 +181,11 @@ class StudentRepositoryTest {
         assertEquals(2, ourStudentsCount);
     }
 
-
     @Test
     void shouldFindByFirstNameContaining() {
-        User user1 = new User("search1-test@example.com", "password", Role.STUDENT);
-        User user2 = new User("search2-test@example.com", "password", Role.STUDENT);
-        User user3 = new User("search3-test@example.com", "password", Role.STUDENT);
+        User user1 = new User("search1-test@example.com", TEST_PASSWORD, Role.STUDENT);
+        User user2 = new User("search2-test@example.com", TEST_PASSWORD_ALT, Role.STUDENT);
+        User user3 = new User("search3-test@example.com", TEST_PASSWORD_ALT2, Role.STUDENT);
 
         userRepository.save(user1);
         userRepository.save(user2);
@@ -204,9 +207,9 @@ class StudentRepositoryTest {
 
     @Test
     void shouldFindByLastName() {
-        User user1 = new User("lastname1-test@example.com", "password", Role.STUDENT);
-        User user2 = new User("lastname2-test@example.com", "password", Role.STUDENT);
-        User user3 = new User("lastname3-test@example.com", "password", Role.STUDENT);
+        User user1 = new User("lastname1-test@example.com", TEST_PASSWORD, Role.STUDENT);
+        User user2 = new User("lastname2-test@example.com", TEST_PASSWORD_ALT, Role.STUDENT);
+        User user3 = new User("lastname3-test@example.com", TEST_PASSWORD_ALT2, Role.STUDENT);
 
         userRepository.save(user1);
         userRepository.save(user2);

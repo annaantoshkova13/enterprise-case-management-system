@@ -28,9 +28,13 @@ class TeacherRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
+    private static final String TEST_PASSWORD = "password123";
+    private static final String TEST_PASSWORD_ALT = "password456";
+    private static final String TEST_PASSWORD_ALT2 = "password789";
+
     @Test
     void shouldSaveAndFindTeacher() {
-        User user = new User("teacher@example.com", "password", Role.TEACHER);
+        User user = new User("teacher@example.com", TEST_PASSWORD, Role.TEACHER);
         userRepository.save(user);
 
         Teacher teacher = new Teacher("John", "Doe", "Computer Science", user);
@@ -47,7 +51,7 @@ class TeacherRepositoryTest {
 
     @Test
     void shouldFindByUser() {
-        User user = new User("unique-teacher-test@example.com", "password", Role.TEACHER);
+        User user = new User("unique-teacher-test@example.com", TEST_PASSWORD, Role.TEACHER);
         userRepository.save(user);
 
         Teacher teacher = new Teacher("Jane", "Doe", "Physics", user);
@@ -62,7 +66,7 @@ class TeacherRepositoryTest {
 
     @Test
     void shouldReturnEmpty_WhenUserHasNoTeacher() {
-        User user = new User("noteacher@example.com", "password", Role.STUDENT);
+        User user = new User("noteacher@example.com", TEST_PASSWORD, Role.STUDENT);
         userRepository.save(user);
 
         Optional<Teacher> found = teacherRepository.findByUser(user);
@@ -72,7 +76,7 @@ class TeacherRepositoryTest {
 
     @Test
     void shouldDeleteTeacher() {
-        User user = new User("delete-teacher@example.com", "password", Role.TEACHER);
+        User user = new User("delete-teacher@example.com", TEST_PASSWORD, Role.TEACHER);
         userRepository.save(user);
 
         Teacher teacher = new Teacher("Delete", "Me", "Chemistry", user);
@@ -86,7 +90,7 @@ class TeacherRepositoryTest {
 
     @Test
     void shouldUpdateTeacherDepartment() {
-        User user = new User("update-teacher@example.com", "password", Role.TEACHER);
+        User user = new User("update-teacher@example.com", TEST_PASSWORD, Role.TEACHER);
         userRepository.save(user);
 
         Teacher teacher = new Teacher("Update", "Department", "Biology", user);
@@ -101,8 +105,8 @@ class TeacherRepositoryTest {
     @Test
     void shouldFindAllTeachers() {
         String timestamp = String.valueOf(System.currentTimeMillis());
-        User user1 = new User("user1-teacher-all-test-" + timestamp + "@example.com", "pass", Role.TEACHER);
-        User user2 = new User("user2-teacher-all-test-" + timestamp + "@example.com", "pass", Role.TEACHER);
+        User user1 = new User("user1-teacher-all-test-" + timestamp + "@example.com", TEST_PASSWORD, Role.TEACHER);
+        User user2 = new User("user2-teacher-all-test-" + timestamp + "@example.com", TEST_PASSWORD_ALT, Role.TEACHER);
         userRepository.save(user1);
         userRepository.save(user2);
 
@@ -133,8 +137,8 @@ class TeacherRepositoryTest {
     @Test
     void shouldCountTeachers() {
         String timestamp = String.valueOf(System.currentTimeMillis());
-        User user1 = new User("user1-teacher-count-test-" + timestamp + "@example.com", "pass", Role.TEACHER);
-        User user2 = new User("user2-teacher-count-test-" + timestamp + "@example.com", "pass", Role.TEACHER);
+        User user1 = new User("user1-teacher-count-test-" + timestamp + "@example.com", TEST_PASSWORD, Role.TEACHER);
+        User user2 = new User("user2-teacher-count-test-" + timestamp + "@example.com", TEST_PASSWORD_ALT, Role.TEACHER);
         userRepository.save(user1);
         userRepository.save(user2);
 
@@ -153,9 +157,9 @@ class TeacherRepositoryTest {
 
     @Test
     void shouldFindByFirstNameContaining() {
-        User user1 = new User("search1-teacher-test@example.com", "password", Role.TEACHER);
-        User user2 = new User("search2-teacher-test@example.com", "password", Role.TEACHER);
-        User user3 = new User("search3-teacher-test@example.com", "password", Role.TEACHER);
+        User user1 = new User("search1-teacher-test@example.com", TEST_PASSWORD, Role.TEACHER);
+        User user2 = new User("search2-teacher-test@example.com", TEST_PASSWORD_ALT, Role.TEACHER);
+        User user3 = new User("search3-teacher-test@example.com", TEST_PASSWORD_ALT2, Role.TEACHER);
 
         userRepository.save(user1);
         userRepository.save(user2);
@@ -177,9 +181,9 @@ class TeacherRepositoryTest {
 
     @Test
     void shouldFindByLastName() {
-        User user1 = new User("lastname1-teacher-test@example.com", "password", Role.TEACHER);
-        User user2 = new User("lastname2-teacher-test@example.com", "password", Role.TEACHER);
-        User user3 = new User("lastname3-teacher-test@example.com", "password", Role.TEACHER);
+        User user1 = new User("lastname1-teacher-test@example.com", TEST_PASSWORD, Role.TEACHER);
+        User user2 = new User("lastname2-teacher-test@example.com", TEST_PASSWORD_ALT, Role.TEACHER);
+        User user3 = new User("lastname3-teacher-test@example.com", TEST_PASSWORD_ALT2, Role.TEACHER);
 
         userRepository.save(user1);
         userRepository.save(user2);
@@ -201,9 +205,9 @@ class TeacherRepositoryTest {
 
     @Test
     void shouldFindByDepartment() {
-        User user1 = new User("dept1-teacher-test@example.com", "password", Role.TEACHER);
-        User user2 = new User("dept2-teacher-test@example.com", "password", Role.TEACHER);
-        User user3 = new User("dept3-teacher-test@example.com", "password", Role.TEACHER);
+        User user1 = new User("dept1-teacher-test@example.com", TEST_PASSWORD, Role.TEACHER);
+        User user2 = new User("dept2-teacher-test@example.com", TEST_PASSWORD_ALT, Role.TEACHER);
+        User user3 = new User("dept3-teacher-test@example.com", TEST_PASSWORD_ALT2, Role.TEACHER);
 
         userRepository.save(user1);
         userRepository.save(user2);
@@ -225,9 +229,9 @@ class TeacherRepositoryTest {
 
     @Test
     void shouldFindByDepartmentContaining() {
-        User user1 = new User("deptcont1-teacher-test@example.com", "password", Role.TEACHER);
-        User user2 = new User("deptcont2-teacher-test@example.com", "password", Role.TEACHER);
-        User user3 = new User("deptcont3-teacher-test@example.com", "password", Role.TEACHER);
+        User user1 = new User("deptcont1-teacher-test@example.com", TEST_PASSWORD, Role.TEACHER);
+        User user2 = new User("deptcont2-teacher-test@example.com", TEST_PASSWORD_ALT, Role.TEACHER);
+        User user3 = new User("deptcont3-teacher-test@example.com", TEST_PASSWORD_ALT2, Role.TEACHER);
 
         userRepository.save(user1);
         userRepository.save(user2);
@@ -249,7 +253,7 @@ class TeacherRepositoryTest {
 
     @Test
     void shouldCheckIfTeacherExistsById() {
-        User user = new User("exists-teacher@example.com", "password", Role.TEACHER);
+        User user = new User("exists-teacher@example.com", TEST_PASSWORD, Role.TEACHER);
         userRepository.save(user);
 
         Teacher teacher = new Teacher("Exists", "Teacher", "Test Department", user);
@@ -264,8 +268,8 @@ class TeacherRepositoryTest {
 
     @Test
     void shouldFindAllById() {
-        User user1 = new User("id1-teacher-test@example.com", "password", Role.TEACHER);
-        User user2 = new User("id2-teacher-test@example.com", "password", Role.TEACHER);
+        User user1 = new User("id1-teacher-test@example.com", TEST_PASSWORD, Role.TEACHER);
+        User user2 = new User("id2-teacher-test@example.com", TEST_PASSWORD_ALT, Role.TEACHER);
         userRepository.save(user1);
         userRepository.save(user2);
 

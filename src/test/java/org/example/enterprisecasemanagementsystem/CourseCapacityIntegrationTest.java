@@ -24,9 +24,9 @@ class CourseCapacityIntegrationTest {
 
     @Test
     void shouldThrowException_WhenEnrollingBeyondCapacity() {
-        User teacherUser = new User("teacher@uni.com", "pass", Role.TEACHER);
-        User student1User = new User("student1@uni.com", "pass", Role.STUDENT);
-        User student2User = new User("student2@uni.com", "pass", Role.STUDENT);
+        User teacherUser = new User("teacher@uni.com", "password123", Role.TEACHER); // Исправлено
+        User student1User = new User("student1@uni.com", "password123", Role.STUDENT); // Исправлено
+        User student2User = new User("student2@uni.com", "password123", Role.STUDENT); // Исправлено
 
         userRepository.save(teacherUser);
         userRepository.save(student1User);
@@ -55,9 +55,9 @@ class CourseCapacityIntegrationTest {
 
     @Test
     void shouldHandleConcurrentEnrollments() {
-        User teacherUser = new User("teacher@uni.com", "pass", Role.TEACHER);
-        User student1User = new User("student1-concurrent@uni.com", "pass", Role.STUDENT);
-        User student2User = new User("student2-concurrent@uni.com", "pass", Role.STUDENT);
+        User teacherUser = new User("teacher@uni.com", "password123", Role.TEACHER); // Исправлено
+        User student1User = new User("student1-concurrent@uni.com", "password123", Role.STUDENT); // Исправлено
+        User student2User = new User("student2-concurrent@uni.com", "password123", Role.STUDENT); // Исправлено
 
         userRepository.save(teacherUser);
         userRepository.save(student1User);
@@ -84,8 +84,8 @@ class CourseCapacityIntegrationTest {
 
     @Test
     void shouldPreventDoubleEnrollment() {
-        User teacherUser = new User("teacher-double@uni.com", "pass", Role.TEACHER);
-        User studentUser = new User("student-double@uni.com", "pass", Role.STUDENT);
+        User teacherUser = new User("teacher-double@uni.com", "password123", Role.TEACHER); // Исправлено
+        User studentUser = new User("student-double@uni.com", "password123", Role.STUDENT); // Исправлено
 
         userRepository.save(teacherUser);
         userRepository.save(studentUser);
@@ -111,8 +111,8 @@ class CourseCapacityIntegrationTest {
 
     @Test
     void shouldUnenrollAndReEnrollStudent() {
-        User teacherUser = new User("teacher-reenroll@uni.com", "pass", Role.TEACHER);
-        User studentUser = new User("student-reenroll@uni.com", "pass", Role.STUDENT);
+        User teacherUser = new User("teacher-reenroll@uni.com", "password123", Role.TEACHER); // Исправлено
+        User studentUser = new User("student-reenroll@uni.com", "password123", Role.STUDENT); // Исправлено
 
         userRepository.save(teacherUser);
         userRepository.save(studentUser);

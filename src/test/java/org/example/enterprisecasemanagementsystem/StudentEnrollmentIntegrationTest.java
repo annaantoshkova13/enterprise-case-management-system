@@ -25,8 +25,8 @@ class StudentEnrollmentIntegrationTest {
 
     @Test
     void shouldEnrollAndUnenrollStudent() {
-        User teacherUser = new User("teacher@uni.com", "pass", Role.TEACHER);
-        User studentUser = new User("student@uni.com", "pass", Role.STUDENT);
+        User teacherUser = new User("teacher@uni.com", "password123", Role.TEACHER);
+        User studentUser = new User("student@uni.com", "password456", Role.STUDENT);
 
         userRepository.save(teacherUser);
         userRepository.save(studentUser);
@@ -55,7 +55,7 @@ class StudentEnrollmentIntegrationTest {
 
     @Test
     void shouldThrowWhenEnrollingNonExistentStudent() {
-        User teacherUser = new User("teacher2@uni.com", "pass", Role.TEACHER);
+        User teacherUser = new User("teacher2@uni.com", "password123", Role.TEACHER);
         userRepository.save(teacherUser);
 
         Teacher teacher = new Teacher("Jane", "Doe", "CS", teacherUser);
@@ -72,7 +72,7 @@ class StudentEnrollmentIntegrationTest {
 
     @Test
     void shouldThrowWhenEnrollingToNonExistentCourse() {
-        User studentUser = new User("student2@uni.com", "pass", Role.STUDENT);
+        User studentUser = new User("student2@uni.com", "password789", Role.STUDENT);
         userRepository.save(studentUser);
 
         Student student = new Student("Bob", "Johnson", "CS-102", studentUser);

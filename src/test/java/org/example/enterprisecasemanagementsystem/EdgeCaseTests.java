@@ -6,10 +6,14 @@ import org.example.enterprisecasemanagementsystem.exception.ResourceNotFoundExce
 import org.example.enterprisecasemanagementsystem.student.Student;
 import org.example.enterprisecasemanagementsystem.user.User;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class EdgeCaseTests {
+
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Test
     void shouldHandleNullValuesInEntities() {
@@ -28,7 +32,7 @@ class EdgeCaseTests {
         assertThrows(IllegalArgumentException.class, () -> new EmailValue(""));
         assertThrows(IllegalArgumentException.class, () -> new EmailValue("   "));
 
-        User user = new User("test@example.com", "pass", Role.TEACHER);
+        User user = new User("test@example.com", passwordEncoder.encode("password123"), Role.TEACHER);
 
         try {
             Course course1 = new Course("", "Description", null, 30);
@@ -53,7 +57,7 @@ class EdgeCaseTests {
 
     @Test
     void shouldHandleBoundaryValues() {
-        User user = new User("test@example.com", "pass", Role.TEACHER);
+        User user = new User("test@example.com", passwordEncoder.encode("password123"), Role.TEACHER);
 
         Course minCapacityCourse = new Course("Min Course", "Description", null, 1);
         assertEquals(1, minCapacityCourse.getMaxStudents());
@@ -77,22 +81,20 @@ class EdgeCaseTests {
 
     @Test
     void shouldHandleDuplicateOperations() {
-        User user1 = new User("duplicate@example.com", "pass", Role.STUDENT);
-
-        User user2 = new User("duplicate@example.com", "pass", Role.STUDENT);
+        User user1 = new User("duplicate@example.com", passwordEncoder.encode("password123"), Role.STUDENT);
+        User user2 = new User("duplicate@example.com", passwordEncoder.encode("password123"), Role.STUDENT);
 
         assertEquals(user1.getEmail(), user2.getEmail());
     }
 
     @Test
     void shouldHandleConcurrentModifications() {
-
         assertTrue(true, "Concurrent modification tests would be implemented separately");
     }
 
     @Test
     void shouldHandleExtremeStringLengths() {
-        User user = new User("test@example.com", "pass", Role.TEACHER);
+        User user = new User("test@example.com", passwordEncoder.encode("password123"), Role.TEACHER);
 
         String longTitle = "A".repeat(255);
         String longDescription = "B".repeat(2000);
@@ -118,11 +120,10 @@ class EdgeCaseTests {
 
     @Test
     void shouldHandleSpecialCharacters() {
-
         assertDoesNotThrow(() -> new EmailValue("test.user+tag@example.com"));
         assertDoesNotThrow(() -> new EmailValue("test-user@example-domain.com"));
 
-        User user = new User("test@example.com", "pass", Role.TEACHER);
+        User user = new User("test@example.com", passwordEncoder.encode("password123"), Role.TEACHER);
 
         String[] specialTitles = {
                 "Course: Advanced Topics",
@@ -146,11 +147,10 @@ class EdgeCaseTests {
 
     @Test
     void shouldHandleWhitespaceInStrings() {
-
         EmailValue email = new EmailValue("  TEST@EXAMPLE.COM  ");
         assertEquals("test@example.com", email.getValue());
 
-        User user = new User("test@example.com", "pass", Role.TEACHER);
+        User user = new User("test@example.com", passwordEncoder.encode("password123"), Role.TEACHER);
 
         try {
             Course course = new Course("  Title with spaces  ", "  Description with spaces  ", null, 30);
@@ -165,7 +165,7 @@ class EdgeCaseTests {
 
     @Test
     void shouldHandleBusinessExceptionProperly() {
-        User user = new User("test@example.com", "pass", Role.TEACHER);
+        User user = new User("test@example.com", passwordEncoder.encode("password123"), Role.TEACHER);
 
         Exception exception = assertThrows(BusinessException.class, () -> {
             new Course("Test Course", "Description", null, 0);
@@ -178,5 +178,20 @@ class EdgeCaseTests {
         } catch (BusinessException e) {
             assertTrue(e.getMessage().contains("max") || e.getMessage().contains("capacity"));
         }
+    }
+
+    @Test
+    void shouldHandlePasswordValidation() {
+        assertDoesNotThrow(() ->
+                new User("test@example.com", passwordEncoder.encode("password123"), Role.TEACHER));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                new User("test@example.com", "short", Role.TEACHER));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                new User("test@example.com", null, Role.TEACHER));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                new User("test@example.com", "", Role.TEACHER));
     }
 }

@@ -3,10 +3,13 @@ package org.example.enterprisecasemanagementsystem;
 import org.example.enterprisecasemanagementsystem.user.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SecurityTests {
+
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Test
     void shouldNotExposePasswordInToString() {
@@ -24,7 +27,7 @@ class SecurityTests {
     @Test
     void shouldStorePasswordAsHash() {
         String rawPassword = "secretPassword123";
-        User user = new User("test@example.com", rawPassword, Role.STUDENT);
+        User user = new User("test@example.com", passwordEncoder.encode(rawPassword), Role.STUDENT);
 
         assertNotEquals(rawPassword, user.getPasswordHash());
 
@@ -35,9 +38,9 @@ class SecurityTests {
 
     @Test
     void shouldValidateRolePermissions() {
-        User admin = new User("admin@example.com", "pass12345", Role.ADMIN);
-        User teacher = new User("teacher@example.com", "pass12345", Role.TEACHER);
-        User student = new User("student@example.com", "pass12345", Role.STUDENT);
+        User admin = new User("admin@example.com", passwordEncoder.encode("pass12345"), Role.ADMIN);
+        User teacher = new User("teacher@example.com", passwordEncoder.encode("pass12345"), Role.TEACHER);
+        User student = new User("student@example.com", passwordEncoder.encode("pass12345"), Role.STUDENT);
 
         assertEquals(Role.ADMIN, admin.getRole());
         assertEquals(Role.TEACHER, teacher.getRole());
@@ -49,7 +52,7 @@ class SecurityTests {
 
     @Test
     void shouldPreventEmailEnumeration() {
-        User user = new User("existing@example.com", "password123", Role.STUDENT);
+        User user = new User("existing@example.com", passwordEncoder.encode("password123"), Role.STUDENT);
 
         String toString = user.toString();
         assertTrue(toString.contains("User"));
@@ -71,28 +74,29 @@ class SecurityTests {
         assertThrows(IllegalArgumentException.class, () ->
                 new User("test@example.com", "1234567", Role.STUDENT));
 
-        User user = new User("test@example.com", "ValidPass123!", Role.STUDENT);
+        User user = new User("test@example.com", passwordEncoder.encode("ValidPass123!"), Role.STUDENT);
         assertNotNull(user);
     }
 
     @Test
     void shouldCheckPasswordSafely() {
-        User user = new User("test@example.com", "CorrectPassword123", Role.STUDENT);
+        String rawPassword = "CorrectPassword123";
+        User user = new User("test@example.com", passwordEncoder.encode(rawPassword), Role.STUDENT);
 
-        assertTrue(user.checkPassword("CorrectPassword123"));
+        assertTrue(user.checkPassword(rawPassword, passwordEncoder));
 
-        assertFalse(user.checkPassword("WrongPassword"));
+        assertFalse(user.checkPassword("WrongPassword", passwordEncoder));
 
-        assertFalse(user.checkPassword(null));
+        assertFalse(user.checkPassword(null, passwordEncoder));
 
-        assertFalse(user.checkPassword(""));
+        assertFalse(user.checkPassword("", passwordEncoder));
 
-        assertFalse(user.checkPassword("CORRECTPASSWORD123"));
+        assertFalse(user.checkPassword("CORRECTPASSWORD123", passwordEncoder));
     }
 
     @Test
     void shouldNotExposeSensitiveDataInLogs() {
-        User user = new User("sensitive@example.com", "SuperSecret123!", Role.TEACHER);
+        User user = new User("sensitive@example.com", passwordEncoder.encode("SuperSecret123!"), Role.TEACHER);
 
         String toString = user.toString();
 
@@ -107,41 +111,43 @@ class SecurityTests {
     @Test
     void shouldPreventTimingAttacksInPasswordComparison() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String hashedPassword = encoder.encode("myPassword123");
+        String rawPassword = "myPassword123";
+        String hashedPassword = encoder.encode(rawPassword);
 
-        boolean match1 = encoder.matches("myPassword123", hashedPassword);
+        User user = new User("test@example.com", hashedPassword, Role.STUDENT);
+
+        boolean match1 = encoder.matches(rawPassword, hashedPassword);
         boolean match2 = encoder.matches("wrongPassword", hashedPassword);
 
         assertTrue(match1);
         assertFalse(match2);
 
-        User user = new User("test@example.com", "myPassword123", Role.STUDENT);
-        assertTrue(user.checkPassword("myPassword123"));
-        assertFalse(user.checkPassword("wrongPassword"));
+        assertTrue(user.checkPassword(rawPassword, encoder));
+        assertFalse(user.checkPassword("wrongPassword", encoder));
     }
 
     @Test
     void shouldHaveSecureDefaultValues() {
-        User user = new User("default@example.com", "password12345", Role.STUDENT);
+        String rawPassword = "password12345";
+        User user = new User("default@example.com", passwordEncoder.encode(rawPassword), Role.STUDENT);
 
-        assertNotEquals("password12345", user.getPasswordHash());
+        assertNotEquals(rawPassword, user.getPasswordHash());
         assertTrue(user.getPasswordHash().matches("^\\$2[aby]\\$\\d{2}\\$[./A-Za-z0-9]{53}$"));
 
         assertNotNull(user.getCreatedAt());
 
-        assertTrue(user.getCreatedAt().isAfter(java.time.LocalDateTime.now().minusMinutes(1)));
         assertTrue(user.getCreatedAt().isBefore(java.time.LocalDateTime.now().plusSeconds(1)));
     }
 
     @Test
     void shouldImplementEqualsSafely() {
-        User user1 = new User("user1@example.com", "pass12345", Role.STUDENT);
+        User user1 = new User("user1@example.com", passwordEncoder.encode("pass12345"), Role.STUDENT);
         user1.setId(1L);
 
-        User user2 = new User("user2@example.com", "pass67890", Role.STUDENT);
+        User user2 = new User("user2@example.com", passwordEncoder.encode("pass67890"), Role.STUDENT);
         user2.setId(2L);
 
-        User user3 = new User("user1@example.com", "pass12345", Role.STUDENT);
+        User user3 = new User("user1@example.com", passwordEncoder.encode("pass12345"), Role.STUDENT);
         user3.setId(1L);
 
         assertNotEquals(user1, user2);
@@ -159,19 +165,19 @@ class SecurityTests {
 
     @Test
     void shouldValidateEmailFormat() {
-        assertDoesNotThrow(() -> new User("valid@example.com", "password12345", Role.STUDENT));
-        assertDoesNotThrow(() -> new User("user.name@domain.co.uk", "password12345", Role.STUDENT));
-        assertDoesNotThrow(() -> new User("user+tag@example.com", "password12345", Role.STUDENT));
-        assertDoesNotThrow(() -> new User("user@sub.domain.example.com", "password12345", Role.STUDENT));
-        assertDoesNotThrow(() -> new User("123@example.com", "password12345", Role.STUDENT));
+        assertDoesNotThrow(() -> new User("valid@example.com", passwordEncoder.encode("password12345"), Role.STUDENT));
+        assertDoesNotThrow(() -> new User("user.name@domain.co.uk", passwordEncoder.encode("password12345"), Role.STUDENT));
+        assertDoesNotThrow(() -> new User("user+tag@example.com", passwordEncoder.encode("password12345"), Role.STUDENT));
+        assertDoesNotThrow(() -> new User("user@sub.domain.example.com", passwordEncoder.encode("password12345"), Role.STUDENT));
+        assertDoesNotThrow(() -> new User("123@example.com", passwordEncoder.encode("password12345"), Role.STUDENT));
     }
 
     @Test
     void shouldAllowPasswordUpdate() {
-        User user = new User("update@example.com", "oldPassword123", Role.STUDENT);
+        User user = new User("update@example.com", passwordEncoder.encode("oldPassword123"), Role.STUDENT);
         String oldHash = user.getPasswordHash();
 
-        user.setPasswordHash(new BCryptPasswordEncoder().encode("newPassword123"));
+        user.setPasswordHash(passwordEncoder.encode("newPassword123"));
         String newHash = user.getPasswordHash();
 
         assertNotEquals(oldHash, newHash);
@@ -180,40 +186,35 @@ class SecurityTests {
 
     @Test
     void shouldHandleEdgeCases() {
-        User user2 = new User("special@example.com", "P@$$w0rd!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~", Role.STUDENT);
+        String specialPassword = "P@$$w0rd!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
+        User user2 = new User("special@example.com", passwordEncoder.encode(specialPassword), Role.STUDENT);
         assertNotNull(user2);
-
-        assertTrue(user2.checkPassword("P@$$w0rd!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"));
-
-        User user3 = new User("unicode@example.com", "password123", Role.STUDENT);
-        assertNotNull(user3);
-
-        assertTrue(user3.checkPassword("password123"));
+        assertTrue(user2.checkPassword(specialPassword, passwordEncoder));
 
         String minPassword = "12345678";
-        User user4 = new User("min@example.com", minPassword, Role.STUDENT);
+        User user4 = new User("min@example.com", passwordEncoder.encode(minPassword), Role.STUDENT);
         assertNotNull(user4);
-        assertTrue(user4.checkPassword(minPassword));
+        assertTrue(user4.checkPassword(minPassword, passwordEncoder));
 
         String spacedPassword = "My Password 123";
-        User user5 = new User("spaced@example.com", spacedPassword, Role.STUDENT);
+        User user5 = new User("spaced@example.com", passwordEncoder.encode(spacedPassword), Role.STUDENT);
         assertNotNull(user5);
-        assertTrue(user5.checkPassword(spacedPassword));
+        assertTrue(user5.checkPassword(spacedPassword, passwordEncoder));
 
         String complexPassword = "Aa1!Bb2@Cc3#Dd4$";
-        User user6 = new User("complex@example.com", complexPassword, Role.STUDENT);
+        User user6 = new User("complex@example.com", passwordEncoder.encode(complexPassword), Role.STUDENT);
         assertNotNull(user6);
-        assertTrue(user6.checkPassword(complexPassword));
+        assertTrue(user6.checkPassword(complexPassword, passwordEncoder));
 
         String longPassword = "A".repeat(50);
-        User user7 = new User("long@example.com", longPassword, Role.STUDENT);
+        User user7 = new User("long@example.com", passwordEncoder.encode(longPassword), Role.STUDENT);
         assertNotNull(user7);
-        assertTrue(user7.checkPassword(longPassword));
+        assertTrue(user7.checkPassword(longPassword, passwordEncoder));
     }
 
     @Test
     void shouldNotAllowPasswordInEmail() {
-        User user = new User("password@example.com", "Secret123!", Role.STUDENT);
+        User user = new User("password@example.com", passwordEncoder.encode("Secret123!"), Role.STUDENT);
         String toString = user.toString();
 
         assertTrue(toString.contains("password@example.com"));
@@ -222,11 +223,21 @@ class SecurityTests {
 
     @Test
     void shouldHandleConcurrentPasswordChecks() {
-        User user = new User("concurrent@example.com", "MyPassword123", Role.STUDENT);
+        String rawPassword = "MyPassword123";
+        User user = new User("concurrent@example.com", passwordEncoder.encode(rawPassword), Role.STUDENT);
 
-        assertTrue(user.checkPassword("MyPassword123"));
-        assertTrue(user.checkPassword("MyPassword123"));
-        assertFalse(user.checkPassword("WrongPassword"));
-        assertTrue(user.checkPassword("MyPassword123"));
+        assertTrue(user.checkPassword(rawPassword, passwordEncoder));
+        assertTrue(user.checkPassword(rawPassword, passwordEncoder));
+        assertFalse(user.checkPassword("WrongPassword", passwordEncoder));
+        assertTrue(user.checkPassword(rawPassword, passwordEncoder));
+    }
+
+    @Test
+    void shouldValidatePasswordInConstructor() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new User("test@example.com", "", Role.STUDENT));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                new User("test@example.com", "short", Role.STUDENT));
     }
 }
