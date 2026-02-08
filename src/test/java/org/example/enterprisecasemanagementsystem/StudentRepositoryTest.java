@@ -29,7 +29,6 @@ class StudentRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-    // Используем длинные пароли для всех тестов
     private static final String TEST_PASSWORD = "password123";
     private static final String TEST_PASSWORD_ALT = "password456";
     private static final String TEST_PASSWORD_ALT2 = "password789";
@@ -53,26 +52,28 @@ class StudentRepositoryTest {
 
     @Test
     void shouldFindByGroupName() {
-        User user1 = new User("student1-group-test@example.com", TEST_PASSWORD, Role.STUDENT);
-        User user2 = new User("student2-group-test@example.com", TEST_PASSWORD_ALT, Role.STUDENT);
-        User user3 = new User("student3-group-test@example.com", TEST_PASSWORD_ALT2, Role.STUDENT);
+        String uniqueId = "group-test-" + System.currentTimeMillis() + "-" + Thread.currentThread().getId();
 
-        userRepository.save(user1);
-        userRepository.save(user2);
-        userRepository.save(user3);
+        User user1 = new User("student1-" + uniqueId + "@example.com", TEST_PASSWORD, Role.STUDENT);
+        User user2 = new User("student2-" + uniqueId + "@example.com", TEST_PASSWORD_ALT, Role.STUDENT);
+        User user3 = new User("student3-" + uniqueId + "@example.com", TEST_PASSWORD_ALT2, Role.STUDENT);
 
-        Student student1 = new Student("Alice", "Smith", "CS-101", user1);
-        Student student2 = new Student("Bob", "Johnson", "CS-101", user2);
-        Student student3 = new Student("Charlie", "Brown", "CS-102", user3);
+        user1 = userRepository.save(user1);
+        user2 = userRepository.save(user2);
+        user3 = userRepository.save(user3);
+
+        Student student1 = new Student("Alice-" + uniqueId, "Smith-" + uniqueId, "CS-101-" + uniqueId, user1);
+        Student student2 = new Student("Bob-" + uniqueId, "Johnson-" + uniqueId, "CS-101-" + uniqueId, user2);
+        Student student3 = new Student("Charlie-" + uniqueId, "Brown-" + uniqueId, "CS-102-" + uniqueId, user3);
 
         studentRepository.save(student1);
         studentRepository.save(student2);
         studentRepository.save(student3);
 
-        List<Student> cs101Students = studentRepository.findByGroupName("CS-101");
+        List<Student> cs101Students = studentRepository.findByGroupName("CS-101-" + uniqueId);
 
         assertEquals(2, cs101Students.size());
-        assertTrue(cs101Students.stream().allMatch(s -> s.getGroupName().equals("CS-101")));
+        assertTrue(cs101Students.stream().allMatch(s -> s.getGroupName().equals("CS-101-" + uniqueId)));
     }
 
     @Test
@@ -181,15 +182,17 @@ class StudentRepositoryTest {
         assertEquals(2, ourStudentsCount);
     }
 
+
     @Test
     void shouldFindByFirstNameContaining() {
-        User user1 = new User("search1-test@example.com", TEST_PASSWORD, Role.STUDENT);
-        User user2 = new User("search2-test@example.com", TEST_PASSWORD_ALT, Role.STUDENT);
-        User user3 = new User("search3-test@example.com", TEST_PASSWORD_ALT2, Role.STUDENT);
+        long timestamp = System.currentTimeMillis();
+        User user1 = new User("search1-test-" + timestamp + "@example.com", TEST_PASSWORD, Role.STUDENT);
+        User user2 = new User("search2-test-" + timestamp + "@example.com", TEST_PASSWORD_ALT, Role.STUDENT);
+        User user3 = new User("search3-test-" + timestamp + "@example.com", TEST_PASSWORD_ALT2, Role.STUDENT);
 
-        userRepository.save(user1);
-        userRepository.save(user2);
-        userRepository.save(user3);
+        user1 = userRepository.save(user1);
+        user2 = userRepository.save(user2);
+        user3 = userRepository.save(user3);
 
         Student student1 = new Student("Alice", "Smith", "CS-101", user1);
         Student student2 = new Student("Alison", "Jones", "CS-101", user2);
@@ -201,8 +204,13 @@ class StudentRepositoryTest {
 
         List<Student> aliStudents = studentRepository.findByFirstNameContainingIgnoreCase("Ali");
 
-        assertEquals(2, aliStudents.size());
-        assertTrue(aliStudents.stream().allMatch(s -> s.getFirstName().toLowerCase().contains("ali")));
+        List<Student> ourAliStudents = aliStudents.stream()
+                .filter(s -> s.getUser().getEmail().toString().contains("search") &&
+                        s.getUser().getEmail().toString().contains(String.valueOf(timestamp)))
+                .toList();
+
+        assertEquals(2, ourAliStudents.size());
+        assertTrue(ourAliStudents.stream().allMatch(s -> s.getFirstName().toLowerCase().contains("ali")));
     }
 
     @Test
