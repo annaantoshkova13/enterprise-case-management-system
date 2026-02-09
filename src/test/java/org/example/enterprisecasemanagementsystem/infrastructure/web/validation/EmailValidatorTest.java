@@ -1,4 +1,4 @@
-package org.example.enterprisecasemanagementsystem.infrastructure.persistence.converters;
+package org.example.enterprisecasemanagementsystem.infrastructure.web.validation;
 
 import org.example.enterprisecasemanagementsystem.domain.EmailValue;
 import org.junit.jupiter.api.Test;
