@@ -28,7 +28,7 @@ public class CourseResponseDTOTest {
 
         CourseResponseDTO dto = CourseResponseDTO.fromEntity(course);
 
-        assertEquals(2L, dto.getId()); // Теперь будет 2L
+        assertEquals(2L, dto.getId());
         assertEquals("Mathematics", dto.getTitle());
         assertEquals("Math course", dto.getDescription());
         assertEquals(30, dto.getMaxStudents());

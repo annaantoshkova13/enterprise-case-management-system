@@ -16,6 +16,6 @@ public class GetCourseUseCase {
 
     public Course execute(Long id) {
         return courseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Course", "id", id)); // ✅ Исправлено исключение
+                .orElseThrow(() -> new ResourceNotFoundException("Course", "id", id));
     }
 }

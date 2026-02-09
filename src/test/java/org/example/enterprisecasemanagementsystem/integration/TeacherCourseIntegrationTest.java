@@ -30,7 +30,6 @@ class TeacherCourseIntegrationTest {
     @Autowired private UserRepository userRepository;
     @Autowired private CourseRepository courseRepository;
 
-    // Используем длинные пароли
     private static final String TEST_PASSWORD = "password123";
     private static final String TEST_PASSWORD_ALT = "password456";
 
