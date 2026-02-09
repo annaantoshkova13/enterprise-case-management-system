@@ -1,5 +1,6 @@
 package org.example.enterprisecasemanagementsystem.exception;
 
+import org.example.enterprisecasemanagementsystem.infrastructure.exception.BusinessException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
