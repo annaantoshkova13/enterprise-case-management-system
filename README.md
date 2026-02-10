@@ -3,9 +3,7 @@
 **Enterprise Case Management System** is a portfolio-grade backend application built with **Java and Spring Boot**.  
 It demonstrates how I design **clean, scalable, and maintainable enterprise systems** using **Clean Architecture** and **Domain-Driven Design (DDD)**.
 
-> This is not a tutorial project — it models real-world business logic, enforces domain rules,  
-> and follows production-style backend practices. It reflects how I structure backend applications  
-> with a strong focus on architecture, domain logic, and testability.
+A production-style backend application with real-world business logic, role-based access control, and comprehensive testing.
 
 ---
 
@@ -31,14 +29,15 @@ It demonstrates how I design **clean, scalable, and maintainable enterprise syst
 
 ## 🏗 Architecture Overview
 
-The application follows a **layered architecture**:
+The application follows a layered architecture:
 
 - **Controller Layer** – handles HTTP requests and responses  
 - **Service Layer** – contains business logic (use-cases)  
 - **Repository Layer** – database access using JPA/Hibernate  
 - **Domain Layer** – core entities, value objects, and domain rules  
 
-This architecture ensures:  
+This architecture ensures:
+
 - Clear separation of responsibilities  
 - High testability of business logic  
 - Independence from frameworks  
@@ -48,14 +47,14 @@ This architecture ensures:
 
 ## 🛠 Technology Stack
 
-- **Java 17+**  
-- **Spring Boot**  
-- **Spring Data JPA (Hibernate)**  
-- **Spring Security**  
-- **PostgreSQL**  
-- **Flyway**  
-- **Maven**  
-- **JUnit & Spring Test**  
+- Java 17+  
+- Spring Boot  
+- Spring Data JPA (Hibernate)  
+- Spring Security  
+- PostgreSQL  
+- Flyway  
+- Maven  
+- JUnit & Spring Test  
 
 ---
 
@@ -95,34 +94,82 @@ This architecture ensures:
 | Students  | `/students/{id}/enroll`   | POST   | Enroll in a course                 |
 | Students  | `/students/{id}/unenroll` | POST   | Unenroll from a course             |
 
-> All endpoints follow **REST principles** and enforce **role-based access control**.
-
 ---
 
 ## 🔒 Security
-- Passwords are stored securely using **BCrypt**  
-- **Role-based access control (RBAC)** ensures proper authorization  
-- Input validation and **global exception handling** prevent invalid requests  
+
+- Passwords are stored securely using BCrypt  
+- Role-based access control (RBAC) ensures proper authorization  
+- Input validation and global exception handling prevent invalid requests  
 
 ---
+
 
 ## 🧪 Testing
-- **Unit Tests:** Service and domain logic  
-- **Integration Tests:** Repository and API endpoints  
-- **Test Coverage:** Ensures correctness of business rules and validations  
+
+- Unit Tests: Service and domain logic  
+- Integration Tests: Repository and API endpoints  
+- Test Coverage: Ensures correctness of business rules and validations  
 
 ---
 
-## 🚀 Getting Started
-```bash
-# Clone the repo
+🚀 Getting Started
+
+# Clone the repository
 git clone https://github.com/annaantoshkova13/enterprise-case-management-system.git
+
+# Go into the project directory
+cd enterprise-case-management-system
 
 # Build the project
 mvn clean install
 
-# Run the project
+# Run the project locally
 mvn spring-boot:run
 
 # Access API
 http://localhost:8080/api
+
+---
+
+## 🐳 Docker Support
+
+### Using Docker
+```bash
+# Build Docker image
+docker build -t enterprise-case-management-system .
+
+# Run container
+docker run -p 8080:8080 --name ecms-container enterprise-case-management-system
+ version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: ecms-postgres
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 12345
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  app:
+    image: enterprise-case-management-system
+    container_name: ecms-app
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydb
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: 12345
+
+volumes:
+  db_data:
+
+
+
