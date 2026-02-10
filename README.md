@@ -47,7 +47,7 @@ This architecture ensures:
 
 ## 🛠 Technology Stack
 
-- Java 25
+- Java 17+
 - Spring Boot
 - Spring Data JPA (Hibernate)
 - Spring Security
