@@ -113,25 +113,6 @@ This architecture ensures:
 
 ---
 
-🚀 Getting Started
-
-# Clone the repository
-git clone https://github.com/annaantoshkova13/enterprise-case-management-system.git
-
-# Go into the project directory
-cd enterprise-case-management-system
-
-# Build the project
-mvn clean install
-
-# Run the project locally
-mvn spring-boot:run
-
-# Access API
-http://localhost:8080/api
-
----
-
 ## 🐳 Docker Support
 
 ### Using Docker
